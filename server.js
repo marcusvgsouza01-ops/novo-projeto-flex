@@ -44,8 +44,16 @@ async function createTable() {
   }
 }
 
-// Chame a função para criar a tabela ao iniciar o servidor
-createTable();
+// Inicia o servidor apenas depois que a tabela for criada
+async function startServer() {
+  await createTable(); // Espera a criação da tabela
+  app.listen(PORT, () => {
+    console.log(`Servidor rodando na porta ${PORT}`);
+  });
+}
+
+// Chame a função para iniciar o servidor
+startServer();
 
 // Rotas da API
 app.get("/api/tasks", async (req, res) => {
@@ -102,8 +110,4 @@ app.delete("/api/tasks/:id", async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
-});
-
-app.listen(PORT, () => {
-  console.log(`Servidor rodando na porta ${PORT}`);
 });
