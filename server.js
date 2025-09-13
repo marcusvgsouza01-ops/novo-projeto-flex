@@ -19,8 +19,8 @@ const pool = new Pool({
   }
 });
 
-// Funções para criar tabelas se não existirem
-async function createTables() {
+// A função para criar a tabela foi alterada para PostgreSQL
+async function createTable() {
   const client = await pool.connect();
   try {
     await client.query(`
@@ -33,39 +33,21 @@ async function createTables() {
         descricao TEXT,
         notificar INTEGER,
         concluida INTEGER,
-        created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+        created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
       )
     `);
-    await client.query(`
-      CREATE TABLE IF NOT EXISTS ordens_servico (
-        id SERIAL PRIMARY KEY,
-        cliente TEXT NOT NULL,
-        descricao TEXT,
-        status TEXT,
-        data_inicio DATE,
-        data_conclusao DATE
-      )
-    `);
-    await client.query(`
-      CREATE TABLE IF NOT EXISTS almoxarifado (
-        id SERIAL PRIMARY KEY,
-        item TEXT NOT NULL,
-        quantidade INTEGER,
-        responsavel TEXT,
-        data_registro TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
-      )
-    `);
-    console.log("Tabelas verificadas/criadas com sucesso.");
+    console.log("Tabela 'tasks' verificada/criada com sucesso.");
   } catch (err) {
-    console.error("Erro ao criar as tabelas:", err);
+    console.error("Erro ao criar a tabela:", err);
   } finally {
     client.release();
   }
 }
-createTables();
 
-// Rotas da API - AGENDA
+// Chame a função para criar a tabela ao iniciar o servidor
+createTable();
+
+// Rotas da API
 app.get("/api/tasks", async (req, res) => {
   try {
     const result = await pool.query("SELECT * FROM tasks ORDER BY quando ASC");
@@ -122,99 +104,6 @@ app.delete("/api/tasks/:id", async (req, res) => {
   }
 });
 
-// Rotas da API - ORDEM DE SERVIÇO
-app.get('/api/ordens-servico', async (req, res) => {
-  try {
-    const result = await pool.query('SELECT * FROM ordens_servico ORDER BY data_inicio ASC');
-    res.json(result.rows);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-app.post('/api/ordens-servico', async (req, res) => {
-  const { cliente, descricao, status, data_inicio, data_conclusao } = req.body;
-  try {
-    const result = await pool.query(
-      `INSERT INTO ordens_servico (cliente, descricao, status, data_inicio, data_conclusao)
-       VALUES ($1, $2, $3, $4, $5) RETURNING *`,
-      [cliente, descricao, status, data_inicio, data_conclusao]
-    );
-    res.json(result.rows[0]);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-app.put('/api/ordens-servico/:id', async (req, res) => {
-  const { id } = req.params;
-  const { cliente, descricao, status, data_inicio, data_conclusao } = req.body;
-  try {
-    const result = await pool.query(
-      `UPDATE ordens_servico SET
-       cliente = $1, descricao = $2, status = $3, data_inicio = $4, data_conclusao = $5
-       WHERE id = $6 RETURNING *`,
-      [cliente, descricao, status, data_inicio, data_conclusao, id]
-    );
-    res.json(result.rows[0]);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-app.delete('/api/ordens-servico/:id', async (req, res) => {
-  const { id } = req.params;
-  try {
-    await pool.query('DELETE FROM ordens_servico WHERE id = $1', [id]);
-    res.json({ message: 'Ordem de serviço excluída' });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// Rotas da API - ALMOXARIFADO
-app.get('/api/almoxarifado', async (req, res) => {
-  try {
-    const result = await pool.query('SELECT * FROM almoxarifado ORDER BY item ASC');
-    res.json(result.rows);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-app.post('/api/almoxarifado', async (req, res) => {
-  const { item, quantidade, responsavel } = req.body;
-  try {
-    const result = await pool.query(
-      `INSERT INTO almoxarifado (item, quantidade, responsavel)
-       VALUES ($1, $2, $3) RETURNING *`,
-      [item, quantidade, responsavel]
-    );
-    res.json(result.rows[0]);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-app.delete('/api/almoxarifado/:id', async (req, res) => {
-  const { id } = req.params;
-  try {
-    await pool.query('DELETE FROM almoxarifado WHERE id = $1', [id]);
-    res.json({ message: 'Item de almoxarifado excluído' });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// Servir frontend
-app.use(express.static(path.join(__dirname, "public")));
-
-// Qualquer rota que não seja /api → entrega o index.html
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "index.html"));
-});
-
-// Iniciar servidor
 app.listen(PORT, () => {
   console.log(`Servidor rodando na porta ${PORT}`);
 });
