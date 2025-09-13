@@ -10,14 +10,14 @@
 
   <style>
     :root {
-      --cor-fundo: #0a0e14;
-      --cor-card: #121620;
-      --cor-borda: #1e2836;
-      --cor-texto: #e2e8f0;
-      --cor-destaque: #65a3f0;
-      --cor-sucesso: #28a745;
-      --cor-aviso: #ffc107;
-      --cor-perigo: #dc3545;
+      --cor-fundo: #2c3e50; /* Azul acinzentado */
+      --cor-card: #34495e;
+      --cor-borda: #46607a;
+      --cor-texto: #ecf0f1;
+      --cor-destaque: #3498db;
+      --cor-sucesso: #2ecc71;
+      --cor-aviso: #f1c40f;
+      --cor-perigo: #e74c3c;
     }
     body {
       background-color: var(--cor-fundo);
@@ -36,7 +36,7 @@
       color: var(--cor-texto);
     }
     .form-control::placeholder {
-      color: #9fb3c8;
+      color: #bdc3c7;
     }
     .table-dark thead th {
       background-color: var(--cor-card);
@@ -52,22 +52,22 @@
       background-color: var(--cor-fundo);
     }
     .nav-tabs .nav-link.active {
+      background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
       color: var(--cor-destaque);
-      background-color: var(--cor-card);
       border-color: var(--cor-borda);
-      border-bottom-color: var(--cor-card);
+      border-bottom-color: transparent;
     }
     .btn-primary {
       background-color: var(--cor-destaque);
       border-color: var(--cor-destaque);
     }
     .btn-primary:hover {
-      background-color: #558ed9;
-      border-color: #558ed9;
+      background-color: #2980b9;
+      border-color: #2980b9;
     }
     .concluida {
       text-decoration: line-through;
-      color: #6c757d !important;
+      color: #95a5a6 !important;
     }
     .badge-prioridade-baixa { background-color: var(--cor-sucesso); }
     .badge-prioridade-media { background-color: var(--cor-aviso); color: #000; }
@@ -80,8 +80,8 @@
       color: var(--cor-texto) !important;
     }
     .btn-outline-secondary {
-      color: var(--cor-destaque);
-      border-color: var(--cor-destaque);
+      color: var(--cor-texto);
+      border-color: var(--cor-borda);
     }
     .btn-outline-danger {
       color: var(--cor-perigo);
@@ -91,7 +91,7 @@
       color: var(--cor-sucesso);
       border-color: var(--cor-sucesso);
     }
-</style>
+  </style>
 </head>
 <body>
   
