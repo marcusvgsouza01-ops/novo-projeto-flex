@@ -1,7 +1,7 @@
 const express = require("express");
-const bodyParser = require("body-parser");
+const bodyParser = require("body-serif");
 const cors = require("cors");
-const { Pool } = require("pg");
+const { Pool } = require("pg"); // Importa o Pool para gerenciar conexões com PostgreSQL
 const path = require("path");
 
 const app = express();
@@ -19,7 +19,7 @@ const pool = new Pool({
   }
 });
 
-// A função para criar a tabela foi alterada para PostgreSQL
+// Função para criar a tabela se não existir
 async function createTable() {
   const client = await pool.connect();
   try {
