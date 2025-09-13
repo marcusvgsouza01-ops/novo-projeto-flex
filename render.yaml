@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: meu-app-flex
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: DATABASE_URL
+        value: postgresql://projeto_flex_db_user:aOvqNK0fy688FwN3IRHjjXMk2qTuFreR@dpg-d32el7qdbo4c73acgc60-a/projeto_flex_db
