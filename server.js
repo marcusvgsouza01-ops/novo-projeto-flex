@@ -116,8 +116,7 @@ app.put("/api/tasks/:id", async (req, res) => {
         prioridade = $4,
         descricao = $5,
         notificar = $6,
-        concluida = $7,
-        updated_at = NOW()
+        concluida = $7
       WHERE id = $8 RETURNING *`,
       [titulo, quando, antecedencia, prioridade, descricao, notificar, concluida, id]
     );
