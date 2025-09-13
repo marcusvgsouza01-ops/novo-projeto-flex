@@ -10,6 +10,7 @@ const PORT = process.env.PORT || 3000;
 // Middlewares
 app.use(cors());
 app.use(bodyParser.json());
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Conexão com o banco de dados PostgreSQL
 const pool = new Pool({
@@ -46,10 +47,15 @@ async function createTable() {
 
 // Inicia o servidor apenas depois que a tabela for criada
 async function startServer() {
-  await createTable(); // Espera a criação da tabela
-  app.listen(PORT, () => {
-    console.log(`Servidor rodando na porta ${PORT}`);
-  });
+  try {
+    await createTable(); // Espera a criação da tabela
+    app.listen(PORT, () => {
+      console.log(`Servidor rodando na porta ${PORT}`);
+    });
+  } catch (err) {
+    console.error("Erro ao iniciar o servidor:", err);
+    process.exit(1);
+  }
 }
 
 // Chame a função para iniciar o servidor
