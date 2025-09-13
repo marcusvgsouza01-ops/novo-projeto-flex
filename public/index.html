@@ -1,0 +1,1043 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Agenda FLEX</title>
+  
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+  <style>
+    body {
+      background-color: #0b0f14;
+      color: #e8f0f7;
+    }
+    .card {
+      background-color: #121820;
+      border: 1px solid #1e2a36;
+    }
+    .card-title, .form-label {
+      color: #e8f0f7 !important;
+    }
+    .form-control, .form-select {
+      background-color: #0d131a;
+      border: 1px solid #1e2a36;
+      color: #e8f0f7;
+    }
+    .form-control::placeholder {
+      color: #9fb3c8;
+    }
+    .table-dark thead th {
+      background-color: #0f1620;
+    }
+    .table-dark tbody tr:hover {
+      background-color: #1a232f;
+    }
+    /* Cores das prioridades */
+    .badge-prioridade-baixa {
+        background-color: #198754;
+        color: white;
+    }
+    .badge-prioridade-media {
+        background-color: #ffc107;
+        color: black;
+    }
+    .badge-prioridade-alta {
+        background-color: #dc3545;
+        color: white;
+    }
+    .concluida {
+        text-decoration: line-through;
+        color: #9fb3c8 !important;
+    }
+    .logo-img {
+        max-height: 40px;
+        margin-right: 10px;
+    }
+    .tab-content .tab-pane {
+        display: none;
+    }
+    .tab-content .tab-pane.active {
+        display: block;
+    }
+    .nav-tabs .nav-link.active {
+        background-color: #1a232f;
+        border-color: #1e2a36;
+    }
+  </style>
+</head>
+<body>
+<div class="container mt-4">
+  <header class="d-flex justify-content-between align-items-center mb-3">
+    <div class="d-flex align-items-center">
+      <img src="/FLEX.jpg" alt="Logo FLEX" class="logo-img">
+      <h1 class="text-white mb-0">Agenda FLEX</h1>
+    </div>
+    <div>
+      <button class="btn btn-outline-secondary me-2" id="exportar">Exportar</button>
+      <button class="btn btn-outline-danger" id="apagarTudo">Limpar</button>
+    </div>
+  </header>
+
+  <main class="row g-3">
+    <section class="col-md-6">
+      <div class="card p-3">
+        <h2 class="card-title">Nova entrada</h2>
+        <ul class="nav nav-tabs card-header-tabs mb-3" id="formTabs" role="tablist">
+          <li class="nav-item">
+            <a class="nav-link active" id="nova-tarefa-tab" data-bs-toggle="tab" href="#nova-tarefa-form" role="tab">Nova Tarefa</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" id="nova-os-tab" data-bs-toggle="tab" href="#nova-os-form" role="tab">Nova O.S.</a>
+          </li>
+        </ul>
+        <div class="tab-content">
+          <div class="tab-pane fade show active" id="nova-tarefa-form" role="tabpanel" aria-labelledby="nova-tarefa-tab">
+            <form id="task-form" autocomplete="off">
+              <div class="mb-3">
+                <label for="titulo" class="form-label text-white">Título</label>
+                <input id="titulo" name="titulo" class="form-control" required />
+              </div>
+              <div class="mb-3">
+                <label for="quando" class="form-label text-white">Data e hora</label>
+                <input id="quando" name="quando" type="datetime-local" class="form-control" required />
+              </div>
+              <div class="mb-3">
+                <label for="antecedencia" class="form-label text-white">Lembrete (min)</label>
+                <select id="antecedencia" name="antecedencia" class="form-select">
+                  <option value="0">No horário</option>
+                  <option value="5">5 minutos antes</option>
+                  <option value="10">10 minutos antes</option>
+                  <option value="30">30 minutos antes</option>
+                  <option value="60">1 hora antes</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label for="prioridade" class="form-label text-white">Prioridade</label>
+                <select id="prioridade" name="prioridade" class="form-select">
+                  <option value="baixa">Baixa</option>
+                  <option value="media" selected>Média</option>
+                  <option value="alta">Alta</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label for="descricao" class="form-label text-white">Descrição</label>
+                <textarea id="descricao" name="descricao" rows="4" class="form-control"></textarea>
+              </div>
+              <div class="form-check mb-3">
+                <input type="checkbox" class="form-check-input" id="notificar" checked>
+                <label class="form-check-label text-white" for="notificar">Ativar notificação</label>
+              </div>
+              <div class="d-flex gap-2">
+                <button class="btn btn-primary" type="submit">Salvar</button>
+                <button class="btn btn-outline-secondary" type="reset">Limpar</button>
+              </div>
+              <div id="status-area-task" class="text-white mt-2">Pronto.</div>
+            </form>
+          </div>
+          <div class="tab-pane fade" id="nova-os-form" role="tabpanel" aria-labelledby="nova-os-tab">
+            <form id="os-form" autocomplete="off">
+              <div class="mb-3">
+                <label for="numero_os" class="form-label text-white">Nº da O.S.</label>
+                <input id="numero_os" name="numero_os" class="form-control" required />
+              </div>
+              <div class="mb-3">
+                <label for="cliente" class="form-label text-white">Cliente</label>
+                <input id="cliente" name="cliente" class="form-control" required />
+              </div>
+              <div class="mb-3">
+                <label for="tecnico" class="form-label text-white">Técnico</label>
+                <input id="tecnico" name="tecnico" class="form-control" />
+              </div>
+              <div class="mb-3">
+                <label for="descricao_os" class="form-label text-white">Descrição da O.S.</label>
+                <textarea id="descricao_os" name="descricao_os" rows="4" class="form-control"></textarea>
+              </div>
+              <div class="d-flex gap-2">
+                <button class="btn btn-primary" type="submit">Salvar O.S.</button>
+                <button class="btn btn-outline-secondary" type="reset">Limpar</button>
+              </div>
+              <div id="status-area-os" class="text-white mt-2">Pronto.</div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <section class="col-md-6">
+      <div class="card p-3">
+        <h2 class="card-title">Listas</h2>
+        <ul class="nav nav-tabs card-header-tabs mb-3" id="myTabLists" role="tablist">
+          <li class="nav-item">
+            <a class="nav-link active" id="tarefas-tab" data-bs-toggle="tab" href="#tarefas-pane" role="tab" aria-controls="tarefas-pane" aria-selected="true">Minhas Tarefas</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" id="os-tab" data-bs-toggle="tab" href="#os-pane" role="tab" aria-controls="os-pane" aria-selected="false">O.S. Liberadas</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" id="almoxarifado-tab" data-bs-toggle="tab" href="#almoxarifado-pane" role="tab">Almoxarifado</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" id="producao-tab" data-bs-toggle="tab" href="#producao-pane" role="tab">Produção</a>
+          </li>
+        </ul>
+        <div class="tab-content" id="myTabContent">
+          <div class="tab-pane fade show active" id="tarefas-pane" role="tabpanel" aria-labelledby="tarefas-tab">
+            <div class="d-flex gap-2 mb-3">
+              <input id="buscar-tarefas" placeholder="Buscar título..." class="form-control me-2" />
+            </div>
+            <div class="table-responsive">
+              <table class="table table-dark table-hover">
+                <thead>
+                  <tr><th>Título</th><th>Quando</th><th>Prioridade</th><th>Status</th><th>Ações</th></tr>
+                </thead>
+                <tbody id="lista-tarefas">
+                  <tr><td colspan="5" class="text-white text-center">Carregando...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="tab-pane fade" id="os-pane" role="tabpanel" aria-labelledby="os-tab">
+            <div class="d-flex gap-2 mb-3">
+              <input id="buscar-os" placeholder="Buscar nº da O.S..." class="form-control me-2" />
+            </div>
+            <div class="table-responsive">
+              <table class="table table-dark table-hover">
+                <thead>
+                  <tr><th>Nº O.S.</th><th>Cliente</th><th>Técnico</th><th>Status</th><th>Ações</th></tr>
+                </thead>
+                <tbody id="lista-os">
+                  <tr><td colspan="5" class="text-white text-center">Carregando...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="tab-pane fade" id="almoxarifado-pane" role="tabpanel">
+<<<<<<< HEAD
+            <h3 class="text-white mt-3 text-center">Cadastro de Itens</h3>
+            <form id="form-almoxarifado" autocomplete="off">
+              <div class="mb-3">
+                <label for="item" class="form-label text-white">Item:</label>
+                <input type="text" id="item-almoxarifado" name="item" class="form-control" required />
+              </div>
+              <div class="mb-3">
+                <label for="quantidade" class="form-label text-white">Quantidade:</label>
+                <input type="number" id="quantidade-almoxarifado" name="quantidade" class="form-control" required />
+              </div>
+              <div class="mb-3">
+                <label for="responsavel" class="form-label text-white">Responsável:</label>
+                <input type="text" id="responsavel-almoxarifado" name="responsavel" class="form-control" required />
+              </div>
+              <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary">Adicionar Item</button>
+              </div>
+            </form>
+            <hr class="mt-4 mb-4" />
+            <h3 class="text-white mt-3 text-center">Lista de Itens</h3>
+            <div class="table-responsive">
+              <table class="table table-dark table-hover">
+                <thead>
+                  <tr><th>ID</th><th>Item</th><th>Quantidade</th><th>Responsável</th><th>Data</th><th>Ações</th></tr>
+                </thead>
+                <tbody id="lista-almoxarifado">
+                  <tr><td colspan="6" class="text-white text-center">Carregando...</td></tr>
+                </tbody>
+              </table>
+            </div>
+=======
+            <h3 class="text-white mt-3 text-center">Módulo Almoxarifado em construção...</h3>
+>>>>>>> 0da361aff94a06d30c85bfcba7e95068aadbb2f5
+          </div>
+          <div class="tab-pane fade" id="producao-pane" role="tabpanel">
+            <h3 class="text-white mt-3 text-center">Módulo Produção em construção...</h3>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+  <section class="mt-3">
+    <div class="card p-3">
+      <h2 class="card-title">Tarefas Concluídas</h2>
+      <div class="table-responsive">
+        <table class="table table-dark table-hover">
+          <thead>
+            <tr><th>Título</th><th>Quando</th><th>Prioridade</th><th>Status</th><th>Ações</th></tr>
+          </thead>
+          <tbody id="lista-tarefas-concluidas">
+            <tr><td colspan="5" class="text-white text-center">Sem tarefas.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+<<<<<<< HEAD
+  const API_TASKS = '/api/tasks';
+  const API_OS = '/api/os';
+  const API_ALMOXARIFADO = '/api/almoxarifado';
+
+  let tarefas = [];
+  let osList = [];
+  let almoxarifadoList = [];
+
+  function el(sel){return document.querySelector(sel)}
+  function formatDate(iso){ 
+      if(!iso) return ''; 
+      const d=new Date(iso); 
+      return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }); 
+  }
+
+  // render tabela de tarefas
+  function renderTasksTable(tbodySel, list) {
+    const tbody = el(tbodySel);
+    tbody.innerHTML = '';
+    if (list.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="5" class="text-white text-center">Sem tarefas.</td></tr>';
+      return;
+    }
+    list.forEach(t => {
+      const tr = document.createElement('tr');
+      
+      let prioridadeBadgeClass = 'badge bg-secondary';
+      if (t.prioridade === 'baixa') {
+          prioridadeBadgeClass = 'badge badge-prioridade-baixa';
+      } else if (t.prioridade === 'media') {
+          prioridadeBadgeClass = 'badge badge-prioridade-media';
+      } else if (t.prioridade === 'alta') {
+          prioridadeBadgeClass = 'badge badge-prioridade-alta';
+      }
+      const concluidaClass = t.concluida ? 'concluida' : '';
+
+      tr.innerHTML = `
+        <td class="${concluidaClass}">${t.titulo}</td>
+        <td class="${concluidaClass}">${formatDate(t.quando)}</td>
+        <td><span class="${prioridadeBadgeClass}">${t.prioridade}</span></td>
+        <td>
+          <button class="btn btn-sm btn-link text-white text-decoration-none" data-id="${t.id}" data-action="toggle-concluida">
+              ${t.concluida ? 'Reabrir' : 'Concluir'}
+          </button>
+        </td>
+        <td>
+          <button class="btn btn-sm btn-outline-secondary" data-id="${t.id}" data-action="editar-task"><i class="bi bi-pencil-square"></i></button>
+          <button class="btn btn-sm btn-outline-danger" data-id="${t.id}" data-action="excluir-task"><i class="bi bi-trash3-fill"></i></button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  // render tabela de O.S.
+  function renderOSTable(tbodySel, list) {
+    const tbody = el(tbodySel);
+    tbody.innerHTML = '';
+    if (list.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="5" class="text-white text-center">Sem O.S. Liberadas.</td></tr>';
+      return;
+    }
+    list.forEach(os => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${os.numero_os}</td>
+        <td>${os.cliente}</td>
+        <td>${os.tecnico || 'N/A'}</td>
+        <td>${os.status}</td>
+        <td>
+          <button class="btn btn-sm btn-outline-secondary" data-id="${os.id}" data-action="editar-os"><i class="bi bi-pencil-square"></i></button>
+          <button class="btn btn-sm btn-outline-danger" data-id="${os.id}" data-action="excluir-os"><i class="bi bi-trash3-fill"></i></button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  // render tabela de Almoxarifado
+  function renderAlmoxarifadoTable(tbodySel, list) {
+    const tbody = el(tbodySel);
+    tbody.innerHTML = '';
+    if (list.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="6" class="text-white text-center">Nenhum item cadastrado.</td></tr>';
+      return;
+    }
+    list.forEach(item => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${item.id}</td>
+        <td>${item.item}</td>
+        <td>${item.quantidade}</td>
+        <td>${item.responsavel}</td>
+        <td>${formatDate(item.data_registro)}</td>
+        <td>
+          <button class="btn btn-sm btn-outline-danger" data-id="${item.id}" data-action="excluir-almoxarifado"><i class="bi bi-trash3-fill"></i></button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  // render listas
+  function render() {
+    const qTarefas = el('#buscar-tarefas').value.trim().toLowerCase();
+    const qOS = el('#buscar-os').value.trim().toLowerCase();
+
+    const pendentesTarefas = tarefas.filter(t => !t.concluida && (!qTarefas || t.titulo.toLowerCase().includes(qTarefas)))
+      .sort((a, b) => new Date(a.quando) - new Date(b.quando));
+    
+    const concluidas = tarefas.filter(t => t.concluida)
+      .sort((a, b) => new Date(a.quando) - new Date(b.quando));
+
+    const osFiltradas = osList.filter(os => !qOS || os.numero_os.toLowerCase().includes(qOS));
+
+    renderTasksTable('#lista-tarefas', pendentesTarefas);
+    renderTasksTable('#lista-tarefas-concluidas', concluidas);
+    renderOSTable('#lista-os', osFiltradas);
+    renderAlmoxarifadoTable('#lista-almoxarifado', almoxarifadoList);
+  }
+
+  // API calls
+  async function loadAllData(){
+    try{
+      const [resTasks, resOS, resAlmoxarifado] = await Promise.all([
+        fetch(API_TASKS),
+        fetch(API_OS),
+        fetch(API_ALMOXARIFADO)
+      ]);
+      
+      tarefas = await resTasks.json();
+      osList = await resOS.json();
+      almoxarifadoList = await resAlmoxarifado.json();
+      
+      render();
+      scheduleAllNotifications();
+    }catch(err){
+      console.error(err);
+    }
+  }
+
+  async function createTask(payload){
+    const res = await fetch(API_TASKS, {
+      method:'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload)
+    });
+    return await res.json();
+  }
+
+  async function updateTask(id, payload){
+    const res = await fetch(`${API_TASKS}/${id}`, {
+      method:'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload)
+    });
+    return await res.json();
+  }
+
+  async function deleteTask(id){
+    await fetch(`${API_TASKS}/${id}`, { method:'DELETE' });
+  }
+
+  async function createOS(payload){
+    const res = await fetch(API_OS, {
+      method:'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload)
+    });
+    return await res.json();
+  }
+
+  async function updateOS(id, payload){
+    const res = await fetch(`${API_OS}/${id}`, {
+      method:'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload)
+    });
+    return await res.json();
+  }
+
+  async function deleteOS(id){
+    await fetch(`${API_OS}/${id}`, { method:'DELETE' });
+  }
+
+  async function createAlmoxarifadoItem(payload){
+    const res = await fetch(API_ALMOXARIFADO, {
+      method:'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload)
+    });
+    return await res.json();
+  }
+
+  async function deleteAlmoxarifadoItem(id){
+    await fetch(`${API_ALMOXARIFADO}/${id}`, { method:'DELETE' });
+  }
+
+  // notifications
+  async function requestPermission(){
+    if('Notification' in window && Notification.permission !== 'granted'){
+      await Notification.requestPermission();
+    }
+  }
+
+  function scheduleNotification(t){
+    if(!t.notificar) return;
+    try{
+      const when = new Date(t.quando).getTime() - (t.antecedencia||0)*60000;
+      const delay = when - Date.now();
+      if(delay > 0){
+        setTimeout(()=>{
+          if(Notification.permission === 'granted'){
+            new Notification('Lembrete: ' + t.titulo, { body: t.descricao || formatDate(t.quando) });
+          } else {
+            console.log('Notificação não permitida.');
+          }
+        }, delay);
+      }
+    }catch(e){ console.error('Erro ao agendar notificação', e); }
+  }
+
+  function scheduleAllNotifications(){
+    tarefas.forEach(scheduleNotification);
+  }
+
+  // form submits
+  el('#task-form').addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const payload = {
+      titulo: el('#titulo').value.trim(),
+      quando: el('#quando').value,
+      antecedencia: Number(el('#antecedencia').value),
+      prioridade: el('#prioridade').value,
+      descricao: el('#descricao').value.trim(),
+      notificar: el('#notificar').checked ? 1 : 0
+    };
+    el('#status-area-task').textContent = 'Salvando...';
+    try{
+      const created = await createTask(payload);
+      tarefas.push(created);
+      render();
+      scheduleNotification(created);
+      el('#status-area-task').textContent = 'Tarefa salva.';
+      e.target.reset();
+    }catch(err){
+      console.error(err);
+      el('#status-area-task').textContent = 'Erro ao salvar.';
+    }
+  });
+
+  el('#os-form').addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const payload = {
+      numero_os: el('#numero_os').value.trim(),
+      cliente: el('#cliente').value.trim(),
+      tecnico: el('#tecnico').value.trim(),
+      descricao: el('#descricao_os').value.trim()
+    };
+    el('#status-area-os').textContent = 'Salvando O.S...';
+    try{
+      const created = await createOS(payload);
+      osList.push(created);
+      render();
+      el('#status-area-os').textContent = 'O.S. salva.';
+      e.target.reset();
+    }catch(err){
+      console.error(err);
+      el('#status-area-os').textContent = 'Erro ao salvar O.S.';
+    }
+  });
+
+  el('#form-almoxarifado').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const payload = {
+        item: el('#item-almoxarifado').value.trim(),
+        quantidade: Number(el('#quantidade-almoxarifado').value),
+        responsavel: el('#responsavel-almoxarifado').value.trim()
+    };
+    try {
+        const created = await createAlmoxarifadoItem(payload);
+        almoxarifadoList.push(created);
+        render();
+        e.target.reset();
+    } catch (err) {
+        console.error('Erro ao salvar item do almoxarifado:', err);
+    }
+  });
+
+  // delegação de eventos para ações
+  document.addEventListener('click', async (ev)=>{
+    const btn = ev.target.closest('button[data-action]');
+    if(!btn) return;
+    const id = btn.getAttribute('data-id');
+    const action = btn.getAttribute('data-action');
+    
+    if(action === 'toggle-concluida'){
+      const t = tarefas.find(x=>String(x.id) === String(id));
+      if (t) {
+          const payload = { ...t, concluida: t.concluida ? 0 : 1 }; 
+          const updated = await updateTask(id, payload);
+          tarefas = tarefas.map(x => x.id === updated.id ? updated : x);
+          render();
+      }
+    } else if(action === 'editar-task'){
+      const t = tarefas.find(x=>String(x.id) === String(id));
+      if(!t) return;
+      el('#nova-tarefa-tab').click();
+      el('#titulo').value = t.titulo;
+      const dt = new Date(t.quando);
+      const pad = n=>String(n).padStart(2,'0');
+      const yyyy = dt.getFullYear();
+      const mm = pad(dt.getMonth()+1);
+      const dd = pad(dt.getDate());
+      const hh = pad(dt.getHours());
+      const min = pad(dt.getMinutes());
+      el('#quando').value = `${yyyy}-${mm}-${dd}T${hh}:${min}`;
+      el('#antecedencia').value = t.antecedencia || 0;
+      el('#prioridade').value = t.prioridade || 'media';
+      el('#descricao').value = t.descricao || '';
+      el('#notificar').checked = !!t.notificar;
+
+      const form = el('#task-form');
+      const originalSubmitHandler = form.onsubmit; 
+      
+      form.onsubmit = async (ev)=>{
+        ev.preventDefault();
+        const updatedPayload = {
+          titulo: el('#titulo').value.trim(),
+          quando: el('#quando').value,
+          antecedencia: Number(el('#antecedencia').value),
+          prioridade: el('#prioridade').value,
+          descricao: el('#descricao').value.trim(),
+          notificar: el('#notificar').checked ? 1 : 0,
+          concluida: t.concluida ? 1 : 0
+        };
+        const updated = await updateTask(id, updatedPayload);
+        tarefas = tarefas.map(x=> x.id===updated.id?updated:x);
+        render();
+        scheduleAllNotifications();
+        el('#status-area-task').textContent = 'Atualizado.';
+        form.onsubmit = originalSubmitHandler; 
+        form.reset();
+      };
+    } else if(action === 'excluir-task'){
+      if(!confirm('Excluir essa tarefa?')) return;
+      await deleteTask(id);
+      tarefas = tarefas.filter(x=> String(x.id) !== String(id));
+      render();
+    } else if(action === 'editar-os'){
+      const os = osList.find(x => String(x.id) === String(id));
+      if (!os) return;
+      el('#nova-os-tab').click();
+      el('#numero_os').value = os.numero_os;
+      el('#cliente').value = os.cliente;
+      el('#tecnico').value = os.tecnico;
+      el('#descricao_os').value = os.descricao;
+      
+      const form = el('#os-form');
+      const originalSubmitHandler = form.onsubmit;
+      
+      form.onsubmit = async (ev) => {
+        ev.preventDefault();
+        const updatedPayload = {
+          numero_os: el('#numero_os').value.trim(),
+          cliente: el('#cliente').value.trim(),
+          tecnico: el('#tecnico').value.trim(),
+          descricao: el('#descricao_os').value.trim(),
+          status: os.status 
+        };
+        const updated = await updateOS(id, updatedPayload);
+        osList = osList.map(x => x.id === updated.id ? updated : x);
+        render();
+        el('#status-area-os').textContent = 'O.S. atualizada.';
+        form.onsubmit = originalSubmitHandler;
+        form.reset();
+      };
+    } else if(action === 'excluir-os'){
+      if(!confirm('Excluir essa O.S.?')) return;
+      await deleteOS(id);
+      osList = osList.filter(x=> String(x.id) !== String(id));
+      render();
+    } else if (action === 'excluir-almoxarifado') {
+      if (!confirm('Excluir este item do almoxarifado?')) return;
+      await deleteAlmoxarifadoItem(id);
+      almoxarifadoList = almoxarifadoList.filter(x => String(x.id) !== String(id));
+      render();
+    }
+  });
+
+  // exportar / limpar
+  el('#exportar').addEventListener('click', ()=>{
+    const data = { tarefas, os: osList, almoxarifado: almoxarifadoList };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type:'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'dados_agenda.json';
+    a.click();
+  });
+
+  el('#apagarTudo').addEventListener('click', async ()=>{
+    if(!confirm('Apagar todos os dados do servidor? Esta ação é irreversível.')) return;
+    for(const t of tarefas){ await deleteTask(t.id); }
+    for(const os of osList){ await deleteOS(os.id); }
+    for(const item of almoxarifadoList){ await deleteAlmoxarifadoItem(item.id); }
+    tarefas = [];
+    osList = [];
+    almoxarifadoList = [];
+    render();
+    el('#status-area-task').textContent = 'Todos os dados foram apagados.';
+  });
+
+  // filtros
+  el('#buscar-tarefas').addEventListener('input', render);
+  el('#buscar-os').addEventListener('input', render);
+
+  // inicialização
+  (async ()=>{
+    await requestPermission();
+    await loadAllData();
+  })();
+=======
+const API_TASKS = '/api/tasks';
+const API_OS = '/api/os';
+
+let tarefas = [];
+let osList = [];
+
+function el(sel){return document.querySelector(sel)}
+function formatDate(iso){ 
+    if(!iso) return ''; 
+    const d=new Date(iso); 
+    return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }); 
+}
+
+// render tabela de tarefas
+function renderTasksTable(tbodySel, list) {
+  const tbody = el(tbodySel);
+  tbody.innerHTML = '';
+  if (list.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="5" class="text-white text-center">Sem tarefas.</td></tr>';
+    return;
+  }
+  list.forEach(t => {
+    const tr = document.createElement('tr');
+    
+    let prioridadeBadgeClass = 'badge bg-secondary';
+    if (t.prioridade === 'baixa') {
+        prioridadeBadgeClass = 'badge badge-prioridade-baixa';
+    } else if (t.prioridade === 'media') {
+        prioridadeBadgeClass = 'badge badge-prioridade-media';
+    } else if (t.prioridade === 'alta') {
+        prioridadeBadgeClass = 'badge badge-prioridade-alta';
+    }
+    const concluidaClass = t.concluida ? 'concluida' : '';
+
+    tr.innerHTML = `
+      <td class="${concluidaClass}">${t.titulo}</td>
+      <td class="${concluidaClass}">${formatDate(t.quando)}</td>
+      <td><span class="${prioridadeBadgeClass}">${t.prioridade}</span></td>
+      <td>
+        <button class="btn btn-sm btn-link text-white text-decoration-none" data-id="${t.id}" data-action="toggle-concluida">
+            ${t.concluida ? 'Reabrir' : 'Concluir'}
+        </button>
+      </td>
+      <td>
+        <button class="btn btn-sm btn-outline-secondary" data-id="${t.id}" data-action="editar-task"><i class="bi bi-pencil-square"></i></button>
+        <button class="btn btn-sm btn-outline-danger" data-id="${t.id}" data-action="excluir-task"><i class="bi bi-trash3-fill"></i></button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+// render tabela de O.S.
+function renderOSTable(tbodySel, list) {
+  const tbody = el(tbodySel);
+  tbody.innerHTML = '';
+  if (list.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="5" class="text-white text-center">Sem O.S. Liberadas.</td></tr>';
+    return;
+  }
+  list.forEach(os => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${os.numero_os}</td>
+      <td>${os.cliente}</td>
+      <td>${os.tecnico || 'N/A'}</td>
+      <td>${os.status}</td>
+      <td>
+        <button class="btn btn-sm btn-outline-secondary" data-id="${os.id}" data-action="editar-os"><i class="bi bi-pencil-square"></i></button>
+        <button class="btn btn-sm btn-outline-danger" data-id="${os.id}" data-action="excluir-os"><i class="bi bi-trash3-fill"></i></button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+// render listas
+function render() {
+  const qTarefas = el('#buscar-tarefas').value.trim().toLowerCase();
+  const qOS = el('#buscar-os').value.trim().toLowerCase();
+
+  const pendentesTarefas = tarefas.filter(t => !t.concluida && (!qTarefas || t.titulo.toLowerCase().includes(qTarefas)))
+    .sort((a, b) => new Date(a.quando) - new Date(b.quando));
+  
+  const concluidas = tarefas.filter(t => t.concluida)
+    .sort((a, b) => new Date(a.quando) - new Date(b.quando));
+
+  const osFiltradas = osList.filter(os => !qOS || os.numero_os.toLowerCase().includes(qOS));
+
+  renderTasksTable('#lista-tarefas', pendentesTarefas);
+  renderTasksTable('#lista-tarefas-concluidas', concluidas);
+  renderOSTable('#lista-os', osFiltradas);
+}
+
+// API calls
+async function loadAllData(){
+  try{
+    const [resTasks, resOS] = await Promise.all([
+      fetch(API_TASKS),
+      fetch(API_OS)
+    ]);
+    
+    tarefas = await resTasks.json();
+    osList = await resOS.json();
+    
+    render();
+    scheduleAllNotifications();
+  }catch(err){
+    console.error(err);
+  }
+}
+
+async function createTask(payload){
+  const res = await fetch(API_TASKS, {
+    method:'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload)
+  });
+  return await res.json();
+}
+
+async function updateTask(id, payload){
+  const res = await fetch(`${API_TASKS}/${id}`, {
+    method:'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload)
+  });
+  return await res.json();
+}
+
+async function deleteTask(id){
+  await fetch(`${API_TASKS}/${id}`, { method:'DELETE' });
+}
+
+async function createOS(payload){
+  const res = await fetch(API_OS, {
+    method:'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload)
+  });
+  return await res.json();
+}
+
+async function updateOS(id, payload){
+  const res = await fetch(`${API_OS}/${id}`, {
+    method:'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload)
+  });
+  return await res.json();
+}
+
+async function deleteOS(id){
+  await fetch(`${API_OS}/${id}`, { method:'DELETE' });
+}
+
+// notifications
+async function requestPermission(){
+  if('Notification' in window && Notification.permission !== 'granted'){
+    await Notification.requestPermission();
+  }
+}
+
+function scheduleNotification(t){
+  if(!t.notificar) return;
+  try{
+    const when = new Date(t.quando).getTime() - (t.antecedencia||0)*60000;
+    const delay = when - Date.now();
+    if(delay > 0){
+      setTimeout(()=>{
+        if(Notification.permission === 'granted'){
+          new Notification('Lembrete: ' + t.titulo, { body: t.descricao || formatDate(t.quando) });
+        } else {
+          console.log('Notificação não permitida.');
+        }
+      }, delay);
+    }
+  }catch(e){ console.error('Erro ao agendar notificação', e); }
+}
+
+function scheduleAllNotifications(){
+  tarefas.forEach(scheduleNotification);
+}
+
+// form submits
+el('#task-form').addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  const payload = {
+    titulo: el('#titulo').value.trim(),
+    quando: el('#quando').value,
+    antecedencia: Number(el('#antecedencia').value),
+    prioridade: el('#prioridade').value,
+    descricao: el('#descricao').value.trim(),
+    notificar: el('#notificar').checked ? 1 : 0
+  };
+  el('#status-area-task').textContent = 'Salvando...';
+  try{
+    const created = await createTask(payload);
+    tarefas.push(created);
+    render();
+    scheduleNotification(created);
+    el('#status-area-task').textContent = 'Tarefa salva.';
+    e.target.reset();
+  }catch(err){
+    console.error(err);
+    el('#status-area-task').textContent = 'Erro ao salvar.';
+  }
+});
+
+el('#os-form').addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  const payload = {
+    numero_os: el('#numero_os').value.trim(),
+    cliente: el('#cliente').value.trim(),
+    tecnico: el('#tecnico').value.trim(),
+    descricao: el('#descricao_os').value.trim()
+  };
+  el('#status-area-os').textContent = 'Salvando O.S...';
+  try{
+    const created = await createOS(payload);
+    osList.push(created);
+    render();
+    el('#status-area-os').textContent = 'O.S. salva.';
+    e.target.reset();
+  }catch(err){
+    console.error(err);
+    el('#status-area-os').textContent = 'Erro ao salvar O.S.';
+  }
+});
+
+// delegação de eventos para ações
+document.addEventListener('click', async (ev)=>{
+  const btn = ev.target.closest('button[data-action]');
+  if(!btn) return;
+  const id = btn.getAttribute('data-id');
+  const action = btn.getAttribute('data-action');
+  
+  if(action === 'toggle-concluida'){
+    const t = tarefas.find(x=>String(x.id) === String(id));
+    if (t) {
+        const payload = { ...t, concluida: t.concluida ? 0 : 1 }; 
+        const updated = await updateTask(id, payload);
+        tarefas = tarefas.map(x => x.id === updated.id ? updated : x);
+        render();
+    }
+  } else if(action === 'editar-task'){
+    const t = tarefas.find(x=>String(x.id) === String(id));
+    if(!t) return;
+    el('#nova-tarefa-tab').click();
+    el('#titulo').value = t.titulo;
+    const dt = new Date(t.quando);
+    const pad = n=>String(n).padStart(2,'0');
+    const yyyy = dt.getFullYear();
+    const mm = pad(dt.getMonth()+1);
+    const dd = pad(dt.getDate());
+    const hh = pad(dt.getHours());
+    const min = pad(dt.getMinutes());
+    el('#quando').value = `${yyyy}-${mm}-${dd}T${hh}:${min}`;
+    el('#antecedencia').value = t.antecedencia || 0;
+    el('#prioridade').value = t.prioridade || 'media';
+    el('#descricao').value = t.descricao || '';
+    el('#notificar').checked = !!t.notificar;
+
+    const form = el('#task-form');
+    const originalSubmitHandler = form.onsubmit; 
+    
+    form.onsubmit = async (ev)=>{
+      ev.preventDefault();
+      const updatedPayload = {
+        titulo: el('#titulo').value.trim(),
+        quando: el('#quando').value,
+        antecedencia: Number(el('#antecedencia').value),
+        prioridade: el('#prioridade').value,
+        descricao: el('#descricao').value.trim(),
+        notificar: el('#notificar').checked ? 1 : 0,
+        concluida: t.concluida ? 1 : 0
+      };
+      const updated = await updateTask(id, updatedPayload);
+      tarefas = tarefas.map(x=> x.id===updated.id?updated:x);
+      render();
+      scheduleAllNotifications();
+      el('#status-area-task').textContent = 'Atualizado.';
+      form.onsubmit = originalSubmitHandler; 
+      form.reset();
+    };
+  } else if(action === 'excluir-task'){
+    if(!confirm('Excluir essa tarefa?')) return;
+    await deleteTask(id);
+    tarefas = tarefas.filter(x=> String(x.id) !== String(id));
+    render();
+  } else if(action === 'editar-os'){
+    const os = osList.find(x => String(x.id) === String(id));
+    if (!os) return;
+    el('#nova-os-tab').click();
+    el('#numero_os').value = os.numero_os;
+    el('#cliente').value = os.cliente;
+    el('#tecnico').value = os.tecnico;
+    el('#descricao_os').value = os.descricao;
+    
+    const form = el('#os-form');
+    const originalSubmitHandler = form.onsubmit;
+    
+    form.onsubmit = async (ev) => {
+      ev.preventDefault();
+      const updatedPayload = {
+        numero_os: el('#numero_os').value.trim(),
+        cliente: el('#cliente').value.trim(),
+        tecnico: el('#tecnico').value.trim(),
+        descricao: el('#descricao_os').value.trim(),
+        status: os.status 
+      };
+      const updated = await updateOS(id, updatedPayload);
+      osList = osList.map(x => x.id === updated.id ? updated : x);
+      render();
+      el('#status-area-os').textContent = 'O.S. atualizada.';
+      form.onsubmit = originalSubmitHandler;
+      form.reset();
+    };
+  } else if(action === 'excluir-os'){
+    if(!confirm('Excluir essa O.S.?')) return;
+    await deleteOS(id);
+    osList = osList.filter(x=> String(x.id) !== String(id));
+    render();
+  }
+});
+
+// exportar / limpar
+el('#exportar').addEventListener('click', ()=>{
+  const data = { tarefas, os: osList };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type:'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'dados_agenda.json';
+  a.click();
+});
+
+el('#apagarTudo').addEventListener('click', async ()=>{
+  if(!confirm('Apagar todas as tarefas e O.S. do servidor? Esta ação é irreversível.')) return;
+  for(const t of tarefas){ await deleteTask(t.id); }
+  for(const os of osList){ await deleteOS(os.id); }
+  tarefas = [];
+  osList = [];
+  render();
+  el('#status-area-task').textContent = 'Todos os dados foram apagados.';
+});
+
+// filtros
+el('#buscar-tarefas').addEventListener('input', render);
+el('#buscar-os').addEventListener('input', render);
+
+// inicialização
+(async ()=>{
+  await requestPermission();
+  await loadAllData();
+})();
+>>>>>>> 0da361aff94a06d30c85bfcba7e95068aadbb2f5
+</script>
+</body>
+</html>
