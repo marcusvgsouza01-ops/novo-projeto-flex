@@ -1,7 +1,7 @@
 const express = require("express");
-const bodyParser = require("body-serif");
+const bodyParser = require("body-parser");
 const cors = require("cors");
-const { Pool } = require("pg"); // Importa o Pool para gerenciar conexões com PostgreSQL
+const { Pool } = require("pg");
 const path = require("path");
 
 const app = express();
