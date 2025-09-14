@@ -75,13 +75,15 @@
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
             const statusMessage = document.getElementById('status-message');
+            
+            const adminUser = 'adim123';
+            const adminPass = 'Maria321';
 
-            // Esta é uma simulação. A lógica real de login será implementada no próximo passo.
-            if (username === 'adim123' && password === 'Maria321') {
+            if (username === adminUser && password === adminPass) {
                 statusMessage.textContent = 'Login bem-sucedido! Redirecionando...';
                 statusMessage.style.color = '#2ecc71';
-                // Lógica de redirecionamento futura
-                // window.location.href = 'index.html'; 
+                localStorage.setItem('isLoggedIn', 'true'); // Salva o status de login
+                window.location.href = 'index.html'; 
             } else {
                 statusMessage.textContent = 'Usuário ou senha incorretos.';
                 statusMessage.style.color = '#e74c3c';
