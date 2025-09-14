@@ -9,7 +9,6 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     
     <script>
-        // Restringe o acesso apenas para o usuário 'pcp' e 'admin'
         const userRole = sessionStorage.getItem('userRole');
         if (userRole !== 'pcp' && userRole !== 'admin') {
             window.location.href = 'login.html';
@@ -138,3 +137,24 @@
     </script>
 </body>
 </html>
+```
+eof
+
+---
+
+### Comandos Git para Atualizar
+
+Para você aplicar essas mudanças manualmente, siga estes comandos Git. Eles irão garantir que o arquivo de login, com as novas credenciais, e os outros módulos sejam atualizados corretamente no seu repositório.
+
+1.  **Adicionar todos os arquivos modificados:**
+    ```shell
+    git add .
+    ```
+2.  **Salvar as alterações:**
+    ```shell
+    git commit -m "Credenciais de administrador alteradas e login verificado em todos os módulos."
+    ```
+3.  **Enviar para o seu repositório:**
+    ```shell
+    git push
+    

@@ -9,7 +9,6 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   
   <script>
-    // Verifica a função do usuário ao carregar a página
     const userRole = sessionStorage.getItem('userRole');
     if (userRole !== 'admin') {
         window.location.href = 'login.html';
@@ -18,7 +17,7 @@
 
   <style>
     :root {
-      --cor-fundo: #2c3e50; /* Azul acinzentado */
+      --cor-fundo: #2c3e50;
       --cor-card: #34495e;
       --cor-borda: #46607a;
       --cor-texto: #ecf0f1;
@@ -123,25 +122,25 @@
 
       <ul class="nav nav-tabs" id="myTab" role="tablist">
         <li class="nav-item" role="presentation">
-            <a class="nav-link" href="index.html" aria-selected="true">Objetivos</a>
+            <a class="nav-link active" id="objetivos-tab" data-bs-toggle="tab" href="#objetivos" role="tab" aria-controls="objetivos" aria-selected="true">Objetivos</a>
         </li>
         <li class="nav-item" role="presentation">
-            <a class="nav-link" href="almoxarifado.html" aria-selected="false">Almoxarifado</a>
+            <a class="nav-link" id="almoxarifado-tab" data-bs-toggle="tab" href="#almoxarifado" role="tab" aria-controls="almoxarifado" aria-selected="false">Almoxarifado</a>
         </li>
         <li class="nav-item" role="presentation">
-            <a class="nav-link" href="pcp.html" aria-selected="false">PCP</a>
+            <a class="nav-link" id="pcp-tab" data-bs-toggle="tab" href="#pcp" role="tab" aria-controls="pcp" aria-selected="false">PCP</a>
         </li>
         <li class="nav-item" role="presentation">
-            <a class="nav-link" href="producao.html" aria-selected="false">Produção</a>
+            <a class="nav-link" id="producao-tab" data-bs-toggle="tab" href="#producao" role="tab" aria-controls="producao" aria-selected="false">Produção</a>
         </li>
         <li class="nav-item" role="presentation">
-            <a class="nav-link" href="expedicao.html" aria-selected="false">Expedição</a>
+            <a class="nav-link" id="expedicao-tab" data-bs-toggle="tab" href="#expedicao" role="tab" aria-controls="expedicao" aria-selected="false">Expedição</a>
         </li>
         <li class="nav-item" role="presentation">
-            <a class="nav-link" href="index.html#tarefas" aria-selected="false">Tarefas</a>
+            <a class="nav-link" id="tarefas-tab" data-bs-toggle="tab" href="#tarefas" role="tab" aria-controls="tarefas" aria-selected="false">Tarefas</a>
         </li>
         <li class="nav-item" role="presentation">
-            <a class="nav-link" href="index.html#ordem-servico" aria-selected="false">O.S</a>
+            <a class="nav-link" id="ordem-servico-tab" data-bs-toggle="tab" href="#ordem-servico" role="tab" aria-controls="ordem-servico" aria-selected="false">O.S</a>
         </li>
       </ul>
 
@@ -298,34 +297,29 @@
     import { getFirestore, doc, addDoc, setDoc, deleteDoc, onSnapshot, collection, query, where, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
     import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
     
-    // Configurações e variáveis globais do ambiente
     setLogLevel('debug');
     const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
     const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
     const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
 
-    // Inicialização do Firebase
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
     const auth = getAuth(app);
     let userId = null;
 
-    // Elementos do DOM
     function el(sel) { return document.querySelector(sel); }
     const userIdDisplay = el('#userIdDisplay');
+    const logoutBtn = el('#logout-btn');
 
-    // Estado da aplicação
     let tarefas = [];
     let osList = [];
     
-    // Funções auxiliares
     function formatDate(timestamp) {
       if (!timestamp) return '';
       const d = timestamp.toDate();
       return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
     }
 
-    // Funções de renderização
     function renderTasksTable(tbodySel, list) {
         const tbody = el(tbodySel);
         tbody.innerHTML = '';
@@ -387,7 +381,6 @@
         });
     }
 
-    // Renderização principal e filtros
     function render() {
         const qTarefas = el('#buscar-tarefas').value.trim().toLowerCase();
         const qOS = el('#buscar-os').value.trim().toLowerCase();
@@ -401,16 +394,13 @@
         renderOSTable('#lista-os', osFiltradas);
     }
 
-    // Listeners do Firebase
     function setupListeners() {
-        // Tarefas
         onSnapshot(query(collection(db, `artifacts/${appId}/users/${userId}/tarefas`)), (snapshot) => {
             const docs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             tarefas = docs.sort((a, b) => (b.quando?.toMillis() || 0) - (a.quando?.toMillis() || 0));
             render();
         });
 
-        // Ordens de Serviço (O.S)
         onSnapshot(query(collection(db, `artifacts/${appId}/users/${userId}/os`)), (snapshot) => {
             const docs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             osList = docs;
@@ -418,7 +408,6 @@
         });
     }
 
-    // Funções de manipulação de dados no Firestore
     async function createTask(payload) {
         await addDoc(collection(db, `artifacts/${appId}/users/${userId}/tarefas`), { ...payload, data_criacao: serverTimestamp(), concluida: false });
     }
@@ -443,7 +432,6 @@
         await deleteDoc(doc(db, `artifacts/${appId}/users/${userId}/os`, id));
     }
 
-    // Eventos e inicialização
     el('#task-form').addEventListener('submit', async (e) => {
         e.preventDefault();
         const payload = {
@@ -550,12 +538,11 @@
     el('#buscar-tarefas').addEventListener('input', render);
     el('#buscar-os').addEventListener('input', render);
     
-    el('#logout-btn').addEventListener('click', function() {
+    logoutBtn.addEventListener('click', function() {
         sessionStorage.clear();
         window.location.href = 'login.html';
     });
 
-    // Início da aplicação
     (async () => {
       try {
         if (initialAuthToken) {
@@ -572,7 +559,7 @@
             userIdDisplay.textContent = `ID do Usuário: ${userId}`;
             setupListeners();
           } else {
-            console.log("Nenhum usuário logado. O sistema não funcionará corretamente.");
+            console.log("Nenhum usuário logado.");
           }
         });
 

@@ -83,7 +83,7 @@
             'producao123': { password: 'producao123', role: 'producao' },
             'almoxarifado123': { password: 'almoxarifado123', role: 'almoxarifado' },
             'expedicao123': { password: 'expedicao123', role: 'expedicao' },
-            'admin': { password: 'admin', role: 'admin' }
+            'adiministrador': { password: 'M@RiaM@rcus090123', role: 'admin' }
         };
 
         document.getElementById('login-form').addEventListener('submit', function(event) {
@@ -97,7 +97,7 @@
                 sessionStorage.setItem('userRole', users[username].role);
                 statusArea.textContent = 'Login bem-sucedido. Redirecionando...';
                 
-                if (username === 'admin') {
+                if (username === 'adiministrador') {
                     window.location.href = 'index.html'; 
                 } else {
                     window.location.href = `${users[username].role}.html`;

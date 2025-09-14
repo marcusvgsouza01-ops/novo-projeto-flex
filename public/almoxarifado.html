@@ -9,7 +9,6 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     
     <script>
-        // Restringe o acesso apenas para o usuário 'almoxarifado' e 'admin'
         const userRole = sessionStorage.getItem('userRole');
         if (userRole !== 'almoxarifado' && userRole !== 'admin') {
             window.location.href = 'login.html';
@@ -133,7 +132,6 @@
                     if (user) {
                         userId = user.uid;
                         userIdDisplay.textContent = `ID do Usuário: ${userId}`;
-                        // Aqui você pode adicionar listeners específicos para o módulo de Almoxarifado
                     } else {
                         console.log("Nenhum usuário logado.");
                     }
