@@ -86,6 +86,11 @@
                 statusMessage.textContent = 'Login bem-sucedido! Redirecionando...';
                 statusMessage.style.color = '#2ecc71';
                 setTimeout(() => { window.location.href = 'producao.html'; }, 500);
+            } else if (username === 'pcp123' && password === 'pcp123') {
+                localStorage.setItem('userRole', 'pcp');
+                statusMessage.textContent = 'Login bem-sucedido! Redirecionando...';
+                statusMessage.style.color = '#2ecc71';
+                setTimeout(() => { window.location.href = 'pcp.html'; }, 500);
             } else {
                 statusMessage.textContent = 'Usuário ou senha incorretos.';
                 statusMessage.style.color = '#e74c3c';
