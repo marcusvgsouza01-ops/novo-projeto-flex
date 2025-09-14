@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   
   <script>
+    // Verifica a função do usuário ao carregar a página
     const userRole = sessionStorage.getItem('userRole');
     if (userRole !== 'admin') {
         window.location.href = 'login.html';
@@ -98,6 +99,11 @@
       color: var(--cor-sucesso);
       border-color: var(--cor-sucesso);
     }
+    #userIdDisplay {
+        font-size: 0.8rem;
+        color: #7f8c8d;
+        word-break: break-all;
+    }
   </style>
 </head>
 <body>
@@ -106,9 +112,12 @@
     <div class="card p-4">
       <div class="d-flex justify-content-between align-items-center mb-4">
         <img src="/images/image_64f7fe.png" alt="Logo da Empresa" style="max-height: 80px;">
-        <button id="logout-btn" class="btn btn-outline-danger">
-            <i class="bi bi-box-arrow-right"></i> Sair
-        </button>
+        <div class="text-end">
+            <p id="userIdDisplay" class="mb-1"></p>
+            <button id="logout-btn" class="btn btn-outline-danger">
+                <i class="bi bi-box-arrow-right"></i> Sair
+            </button>
+        </div>
       </div>
       <h1 class="card-title text-center p-3">Grupo ST Comunicaçao Integrada</h1>
 
@@ -311,405 +320,349 @@
   
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-<script>
-  const API_URL = 'https://stflex-app-consulta.onrender.com';
-  const API_TASKS = `${API_URL}/api/tasks`;
-  const API_OS = `${API_URL}/api/os`;
-  const API_ALMOXARIFADO = `${API_URL}/api/almoxarifado`;
-  
-  const ADMIN_PASSWORD = 'M@Ria090123';
-
-  let tarefas = [];
-  let osList = [];
-  let almoxarifadoList = [];
-
-  function el(sel){return document.querySelector(sel)}
-  function formatDate(iso){ 
-      if(!iso) return ''; 
-      const d=new Date(iso); 
-      return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }); 
-  }
-
-  // render tabela de tarefas
-  function renderTasksTable(tbodySel, list) {
-    const tbody = el(tbodySel);
-    tbody.innerHTML = '';
-    if (list.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="5" class="text-white text-center">Sem tarefas.</td></tr>';
-      return;
-    }
-    list.forEach(t => {
-      const tr = document.createElement('tr');
-      
-      let prioridadeBadgeClass = 'badge bg-secondary';
-      if (t.prioridade === 'baixa') {
-          prioridadeBadgeClass = 'badge badge-prioridade-baixa';
-      } else if (t.prioridade === 'media') {
-          prioridadeBadgeClass = 'badge badge-prioridade-media';
-      } else if (t.prioridade === 'alta') {
-          prioridadeBadgeClass = 'badge badge-prioridade-alta';
-      }
-      const concluidaClass = t.concluida ? 'concluida' : '';
-
-      tr.innerHTML = `
-        <td class="${concluidaClass}">${t.titulo}</td>
-        <td class="${concluidaClass}">${formatDate(t.quando)}</td>
-        <td><span class="${prioridadeBadgeClass}">${t.prioridade}</span></td>
-        <td>
-          <button class="btn btn-sm btn-link text-white text-decoration-none" data-id="${t.id}" data-action="toggle-concluida">
-              ${t.concluida ? 'Reabrir' : 'Concluir'}
-          </button>
-        </td>
-        <td>
-          <button class="btn btn-sm btn-outline-secondary" data-id="${t.id}" data-action="editar-task"><i class="bi bi-pencil-square"></i></button>
-          <button class="btn btn-sm btn-outline-danger" data-id="${t.id}" data-action="excluir-task"><i class="bi bi-trash3-fill"></i></button>
-        </td>
-      `;
-      tbody.appendChild(tr);
-    });
-  }
-
-  // render tabela de O.S.
-  function renderOSTable(tbodySel, list) {
-    const tbody = el(tbodySel);
-    tbody.innerHTML = '';
-    if (list.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="5" class="text-white text-center">Sem O.S. Liberadas.</td></tr>';
-      return;
-    }
-    list.forEach(os => {
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td>${os.numero_os}</td>
-        <td>${os.cliente}</td>
-        <td>${os.tecnico || 'N/A'}</td>
-        <td>${os.status}</td>
-        <td>
-          <button class="btn btn-sm btn-outline-secondary" data-id="${os.id}" data-action="editar-os"><i class="bi bi-pencil-square"></i></button>
-          <button class="btn btn-sm btn-outline-danger" data-id="${os.id}" data-action="excluir-os"><i class="bi bi-trash3-fill"></i></button>
-        </td>
-      `;
-      tbody.appendChild(tr);
-    });
-  }
-
-  // render tabela de Almoxarifado
-  function renderAlmoxarifadoTable(tbodySel, list) {
-    const tbody = el(tbodySel);
-    tbody.innerHTML = '';
-    if (list.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="6" class="text-white text-center">Nenhum item cadastrado.</td></tr>';
-      return;
-    }
-    list.forEach(item => {
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td>${item.id}</td>
-        <td>${item.item}</td>
-        <td>${item.quantidade}</td>
-        <td>${item.responsavel}</td>
-        <td>${formatDate(item.data_registro)}</td>
-        <td>
-          <button class="btn btn-sm btn-outline-danger" data-id="${item.id}" data-action="excluir-almoxarifado"><i class="bi bi-trash3-fill"></i></button>
-        </td>
-      `;
-      tbody.appendChild(tr);
-    });
-  }
-
-  // render listas
-  function render() {
-    const qTarefas = el('#buscar-tarefas').value.trim().toLowerCase();
-    const qOS = el('#buscar-os').value.trim().toLowerCase();
-
-    const pendentesTarefas = tarefas.filter(t => !t.concluida && (!qTarefas || t.titulo.toLowerCase().includes(qTarefas)))
-      .sort((a, b) => new Date(a.quando) - new Date(b.quando));
+  <!-- Firebase Scripts -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, doc, getDoc, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where, serverTimestamp, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
     
-    const concluidas = tarefas.filter(t => t.concluida)
-      .sort((a, b) => new Date(a.quando) - new Date(b.quando));
+    // Configurações e variáveis globais do ambiente
+    setLogLevel('debug');
+    const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+    const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+    const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
 
-    const osFiltradas = osList.filter(os => !qOS || os.numero_os.toLowerCase().includes(qOS));
+    // Inicialização do Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+    let userId = null;
 
-    renderTasksTable('#lista-tarefas', pendentesTarefas);
-    renderTasksTable('#lista-tarefas-concluidas', concluidas);
-    renderOSTable('#lista-os', osFiltradas);
-    renderAlmoxarifadoTable('#lista-almoxarifado', almoxarifadoList);
-  }
+    // Elementos do DOM
+    function el(sel) { return document.querySelector(sel); }
+    const userIdDisplay = el('#userIdDisplay');
 
-  // API calls
-  async function loadAllData(){
-    try{
-      const [resTasks, resOS, resAlmoxarifado] = await Promise.all([
-        fetch(API_TASKS),
-        fetch(API_OS),
-        fetch(API_ALMOXARIFADO)
-      ]);
-      
-      tarefas = await resTasks.json();
-      osList = await resOS.json();
-      almoxarifadoList = await resAlmoxarifado.json();
-      
-      render();
-      scheduleAllNotifications();
-    }catch(err){
-      console.error(err);
+    // Estado da aplicação
+    let tarefas = [];
+    let osList = [];
+    let almoxarifadoList = [];
+    
+    // Funções auxiliares
+    function formatDate(timestamp) {
+      if (!timestamp) return '';
+      const d = timestamp.toDate();
+      return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
     }
-  }
 
-  async function createTask(payload){
-    const res = await fetch(API_TASKS, {
-      method:'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload)
-    });
-    return await res.json();
-  }
+    // Funções de renderização
+    function renderTasksTable(tbodySel, list) {
+        const tbody = el(tbodySel);
+        tbody.innerHTML = '';
+        if (list.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" class="text-white text-center">Sem tarefas.</td></tr>';
+            return;
+        }
+        list.forEach(t => {
+            const tr = document.createElement('tr');
+            
+            let prioridadeBadgeClass = 'badge bg-secondary';
+            if (t.prioridade === 'baixa') {
+                prioridadeBadgeClass = 'badge badge-prioridade-baixa';
+            } else if (t.prioridade === 'media') {
+                prioridadeBadgeClass = 'badge badge-prioridade-media';
+            } else if (t.prioridade === 'alta') {
+                prioridadeBadgeClass = 'badge badge-prioridade-alta';
+            }
+            const concluidaClass = t.concluida ? 'concluida' : '';
 
-  async function updateTask(id, payload){
-    const res = await fetch(`${API_TASKS}/${id}`, {
-      method:'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload)
-    });
-    return await res.json();
-  }
-
-  async function deleteTask(id){
-    await fetch(`${API_TASKS}/${id}`, { method:'DELETE' });
-  }
-
-  async function createOS(payload){
-    const res = await fetch(API_OS, {
-      method:'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload)
-    });
-    return await res.json();
-  }
-
-  async function updateOS(id, payload){
-    const res = await fetch(`${API_OS}/${id}`, {
-      method:'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload)
-    });
-    return await res.json();
-  }
-
-  async function deleteOS(id){
-    await fetch(`${API_OS}/${id}`, { method:'DELETE' });
-  }
-
-  async function createAlmoxarifadoItem(payload){
-    const res = await fetch(API_ALMOXARIFADO, {
-      method:'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload)
-    });
-    return await res.json();
-  }
-
-  async function deleteAlmoxarifadoItem(id){
-    await fetch(`${API_ALMOXARIFADO}/${id}`, { method:'DELETE' });
-  }
-
-  // notifications
-  async function requestPermission(){
-    if('Notification' in window && Notification.permission !== 'granted'){
-      await Notification.requestPermission();
+            tr.innerHTML = `
+                <td class="${concluidaClass}">${t.titulo}</td>
+                <td class="${concluidaClass}">${t.quando ? formatDate(t.quando) : 'N/A'}</td>
+                <td><span class="${prioridadeBadgeClass}">${t.prioridade}</span></td>
+                <td>
+                    <button class="btn btn-sm btn-link text-white text-decoration-none" data-id="${t.id}" data-action="toggle-concluida">
+                        ${t.concluida ? 'Reabrir' : 'Concluir'}
+                    </button>
+                </td>
+                <td>
+                    <button class="btn btn-sm btn-outline-secondary" data-id="${t.id}" data-action="editar-task"><i class="bi bi-pencil-square"></i></button>
+                    <button class="btn btn-sm btn-outline-danger" data-id="${t.id}" data-action="excluir-task"><i class="bi bi-trash3-fill"></i></button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
     }
-  }
 
-  function scheduleNotification(t){
-    if(!t.notificar) return;
-    try{
-      const when = new Date(t.quando).getTime() - (t.antecedencia||0)*60000;
-      const delay = when - Date.now();
-      if(delay > 0){
-        setTimeout(()=>{
-          if(Notification.permission === 'granted'){
-            new Notification('Lembrete: ' + t.titulo, { body: t.descricao || formatDate(t.quando) });
-          } else {
-            console.log('Notificação não permitida.');
-          }
-        }, delay);
-      }
-    }catch(e){ console.error('Erro ao agendar notificação', e); }
-  }
-
-  function scheduleAllNotifications(){
-    tarefas.forEach(scheduleNotification);
-  }
-
-  // form submits
-  el('#task-form').addEventListener('submit', async (e)=>{
-    e.preventDefault();
-    const payload = {
-      titulo: el('#titulo').value.trim(),
-      quando: el('#quando').value,
-      antecedencia: Number(el('#antecedencia').value),
-      prioridade: el('#prioridade').value,
-      descricao: el('#descricao').value.trim(),
-      notificar: el('#notificar').checked ? 1 : 0
-    };
-    el('#status-area-task').textContent = 'Salvando...';
-    try{
-      const created = await createTask(payload);
-      tarefas.push(created);
-      render();
-      scheduleNotification(created);
-      el('#status-area-task').textContent = 'Tarefa salva.';
-      e.target.reset();
-    }catch(err){
-      console.error(err);
-      el('#status-area-task').textContent = 'Erro ao salvar.';
+    function renderOSTable(tbodySel, list) {
+        const tbody = el(tbodySel);
+        tbody.innerHTML = '';
+        if (list.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" class="text-white text-center">Sem O.S. Liberadas.</td></tr>';
+            return;
+        }
+        list.forEach(os => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${os.numero_os}</td>
+                <td>${os.cliente}</td>
+                <td>${os.tecnico || 'N/A'}</td>
+                <td>${os.status}</td>
+                <td>
+                    <button class="btn btn-sm btn-outline-secondary" data-id="${os.id}" data-action="editar-os"><i class="bi bi-pencil-square"></i></button>
+                    <button class="btn btn-sm btn-outline-danger" data-id="${os.id}" data-action="excluir-os"><i class="bi bi-trash3-fill"></i></button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
     }
-  });
 
-  el('#os-form').addEventListener('submit', async (e)=>{
-    e.preventDefault();
-    const payload = {
-      numero_os: el('#numero_os').value.trim(),
-      cliente: el('#cliente').value.trim(),
-      tecnico: el('#tecnico').value.trim(),
-      descricao: el('#descricao_os').value.trim()
-    };
-    el('#status-area-os').textContent = 'Salvando O.S...';
-    try{
-      const created = await createOS(payload);
-      osList.push(created);
-      render();
-      el('#status-area-os').textContent = 'O.S. salva.';
-      e.target.reset();
-    }catch(err){
-      console.error(err);
-      el('#status-area-os').textContent = 'Erro ao salvar O.S.';
+    function renderAlmoxarifadoTable(tbodySel, list) {
+        const tbody = el(tbodySel);
+        tbody.innerHTML = '';
+        if (list.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" class="text-white text-center">Nenhum item cadastrado.</td></tr>';
+            return;
+        }
+        list.forEach(item => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${item.id}</td>
+                <td>${item.item}</td>
+                <td>${item.quantidade}</td>
+                <td>${item.responsavel}</td>
+                <td>${item.data_registro ? formatDate(item.data_registro) : 'N/A'}</td>
+                <td>
+                    <button class="btn btn-sm btn-outline-danger" data-id="${item.id}" data-action="excluir-almoxarifado"><i class="bi bi-trash3-fill"></i></button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
     }
-  });
 
-  el('#form-almoxarifado').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const payload = {
-        item: el('#item-almoxarifado').value.trim(),
-        quantidade: Number(el('#quantidade-almoxarifado').value),
-        responsavel: el('#responsavel-almoxarifado').value.trim()
-    };
-    try {
-        const created = await createAlmoxarifadoItem(payload);
-        almoxarifadoList.push(created);
-        render();
+    // Renderização principal e filtros
+    function render() {
+        const qTarefas = el('#buscar-tarefas').value.trim().toLowerCase();
+        const qOS = el('#buscar-os').value.trim().toLowerCase();
+
+        const pendentesTarefas = tarefas.filter(t => !t.concluida && (!qTarefas || t.titulo.toLowerCase().includes(qTarefas)));
+        const concluidas = tarefas.filter(t => t.concluida);
+        const osFiltradas = osList.filter(os => !qOS || os.numero_os.toLowerCase().includes(qOS));
+
+        renderTasksTable('#lista-tarefas', pendentesTarefas);
+        renderTasksTable('#lista-tarefas-concluidas', concluidas);
+        renderOSTable('#lista-os', osFiltradas);
+        renderAlmoxarifadoTable('#lista-almoxarifado', almoxarifadoList);
+    }
+
+    // Listeners do Firebase
+    function setupListeners() {
+        // Tarefas
+        onSnapshot(query(collection(db, `artifacts/${appId}/users/${userId}/tarefas`)), (snapshot) => {
+            const docs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            tarefas = docs.sort((a, b) => (b.quando?.toMillis() || 0) - (a.quando?.toMillis() || 0));
+            render();
+        });
+
+        // Ordens de Serviço (O.S)
+        onSnapshot(query(collection(db, `artifacts/${appId}/users/${userId}/os`)), (snapshot) => {
+            const docs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            osList = docs;
+            render();
+        });
+
+        // Almoxarifado
+        onSnapshot(query(collection(db, `artifacts/${appId}/users/${userId}/almoxarifado`)), (snapshot) => {
+            const docs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            almoxarifadoList = docs;
+            render();
+        });
+    }
+
+    // Funções de manipulação de dados no Firestore
+    async function createTask(payload) {
+        await addDoc(collection(db, `artifacts/${appId}/users/${userId}/tarefas`), { ...payload, data_criacao: serverTimestamp(), concluida: false });
+    }
+
+    async function updateTask(id, payload) {
+        await setDoc(doc(db, `artifacts/${appId}/users/${userId}/tarefas`, id), payload, { merge: true });
+    }
+
+    async function deleteTask(id) {
+        await deleteDoc(doc(db, `artifacts/${appId}/users/${userId}/tarefas`, id));
+    }
+
+    async function createOS(payload) {
+        await addDoc(collection(db, `artifacts/${appId}/users/${userId}/os`), { ...payload, status: 'Liberada' });
+    }
+
+    async function updateOS(id, payload) {
+        await setDoc(doc(db, `artifacts/${appId}/users/${userId}/os`, id), payload, { merge: true });
+    }
+
+    async function deleteOS(id) {
+        await deleteDoc(doc(db, `artifacts/${appId}/users/${userId}/os`, id));
+    }
+
+    async function createAlmoxarifadoItem(payload) {
+        await addDoc(collection(db, `artifacts/${appId}/users/${userId}/almoxarifado`), { ...payload, data_registro: serverTimestamp() });
+    }
+
+    async function deleteAlmoxarifadoItem(id) {
+        await deleteDoc(doc(db, `artifacts/${appId}/users/${userId}/almoxarifado`, id));
+    }
+
+    // Eventos e inicialização
+    el('#task-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const payload = {
+            titulo: el('#titulo').value.trim(),
+            quando: el('#quando').value ? new Date(el('#quando').value) : null,
+            antecedencia: Number(el('#antecedencia').value),
+            prioridade: el('#prioridade').value,
+            descricao: el('#descricao').value.trim(),
+            notificar: el('#notificar').checked
+        };
+        el('#status-area-task').textContent = 'Salvando...';
+        await createTask(payload);
+        el('#status-area-task').textContent = 'Tarefa salva.';
         e.target.reset();
-    } catch (err) {
-        console.error('Erro ao salvar item do almoxarifado:', err);
-    }
-  });
+    });
 
-  // delegação de eventos para ações
-  document.addEventListener('click', async (ev)=>{
-    const btn = ev.target.closest('button[data-action]');
-    if(!btn) return;
-    const id = btn.getAttribute('data-id');
-    const action = btn.getAttribute('data-action');
+    el('#os-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const payload = {
+            numero_os: el('#numero_os').value.trim(),
+            cliente: el('#cliente').value.trim(),
+            tecnico: el('#tecnico').value.trim(),
+            descricao: el('#descricao_os').value.trim()
+        };
+        el('#status-area-os').textContent = 'Salvando O.S...';
+        await createOS(payload);
+        el('#status-area-os').textContent = 'O.S. salva.';
+        e.target.reset();
+    });
+
+    el('#form-almoxarifado').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const payload = {
+            item: el('#item-almoxarifado').value.trim(),
+            quantidade: Number(el('#quantidade-almoxarifado').value),
+            responsavel: el('#responsavel-almoxarifado').value.trim()
+        };
+        await createAlmoxarifadoItem(payload);
+        e.target.reset();
+    });
+
+    document.addEventListener('click', async (ev) => {
+        const btn = ev.target.closest('button[data-action]');
+        if (!btn) return;
+        const id = btn.getAttribute('data-id');
+        const action = btn.getAttribute('data-action');
+        
+        if (action === 'toggle-concluida') {
+            const t = tarefas.find(x => x.id === id);
+            if (t) {
+                await updateTask(id, { concluida: !t.concluida });
+            }
+        } else if (action === 'editar-task') {
+            const t = tarefas.find(x => x.id === id);
+            if (!t) return;
+            el('#tarefas-tab').click(); 
+            el('#titulo').value = t.titulo;
+            el('#quando').value = t.quando?.toDate().toISOString().slice(0, 16);
+            el('#antecedencia').value = t.antecedencia || 0;
+            el('#prioridade').value = t.prioridade || 'media';
+            el('#descricao').value = t.descricao || '';
+            el('#notificar').checked = !!t.notificar;
+
+            const form = el('#task-form');
+            const originalSubmitHandler = form.onsubmit; 
+            
+            form.onsubmit = async (ev) => {
+                ev.preventDefault();
+                const updatedPayload = {
+                    titulo: el('#titulo').value.trim(),
+                    quando: el('#quando').value ? new Date(el('#quando').value) : null,
+                    antecedencia: Number(el('#antecedencia').value),
+                    prioridade: el('#prioridade').value,
+                    descricao: el('#descricao').value.trim(),
+                    notificar: el('#notificar').checked,
+                    concluida: t.concluida
+                };
+                await updateTask(id, updatedPayload);
+                el('#status-area-task').textContent = 'Atualizado.';
+                form.onsubmit = originalSubmitHandler; 
+                form.reset();
+            };
+        } else if (action === 'excluir-task') {
+            await deleteTask(id);
+        } else if (action === 'editar-os') {
+            const os = osList.find(x => x.id === id);
+            if (!os) return;
+            el('#ordem-servico-tab').click(); 
+            el('#numero_os').value = os.numero_os;
+            el('#cliente').value = os.cliente;
+            el('#tecnico').value = os.tecnico;
+            el('#descricao_os').value = os.descricao;
+            
+            const form = el('#os-form');
+            const originalSubmitHandler = form.onsubmit;
+            
+            form.onsubmit = async (ev) => {
+                ev.preventDefault();
+                const updatedPayload = {
+                    numero_os: el('#numero_os').value.trim(),
+                    cliente: el('#cliente').value.trim(),
+                    tecnico: el('#tecnico').value.trim(),
+                    descricao: el('#descricao_os').value.trim(),
+                    status: os.status 
+                };
+                await updateOS(id, updatedPayload);
+                el('#status-area-os').textContent = 'O.S. atualizada.';
+                form.onsubmit = originalSubmitHandler;
+                form.reset();
+            };
+        } else if (action === 'excluir-os') {
+            await deleteOS(id);
+        } else if (action === 'excluir-almoxarifado') {
+            await deleteAlmoxarifadoItem(id);
+        }
+    });
+
+    el('#buscar-tarefas').addEventListener('input', render);
+    el('#buscar-os').addEventListener('input', render);
     
-    if(action === 'toggle-concluida'){
-      const t = tarefas.find(x=>String(x.id) === String(id));
-      if (t) {
-          const payload = { ...t, concluida: t.concluida ? 0 : 1 }; 
-          const updated = await updateTask(id, payload);
-          tarefas = tarefas.map(x => x.id === updated.id ? updated : x);
-          render();
+    el('#logout-btn').addEventListener('click', function() {
+        sessionStorage.clear();
+        window.location.href = 'login.html';
+    });
+
+    // Início da aplicação
+    (async () => {
+      try {
+        if (initialAuthToken) {
+          const userCredential = await signInWithCustomToken(auth, initialAuthToken);
+          userId = userCredential.user.uid;
+        } else {
+          const userCredential = await signInAnonymously(auth);
+          userId = userCredential.user.uid;
+        }
+        
+        onAuthStateChanged(auth, (user) => {
+          if (user) {
+            userId = user.uid;
+            userIdDisplay.textContent = `ID do Usuário: ${userId}`;
+            setupListeners();
+          } else {
+            console.log("Nenhum usuário logado. O sistema não funcionará corretamente.");
+          }
+        });
+
+      } catch (error) {
+        console.error("Erro na autenticação:", error);
       }
-    } else if(action === 'editar-task'){
-      const t = tarefas.find(x=>String(x.id) === String(id));
-      if(!t) return;
-      el('#tarefas-tab').click(); 
-      el('#titulo').value = t.titulo;
-      const dt = new Date(t.quando);
-      const pad = n=>String(n).padStart(2,'0');
-      const yyyy = dt.getFullYear();
-      const mm = pad(dt.getMonth()+1);
-      const dd = pad(dt.getDate());
-      const hh = pad(dt.getHours());
-      const min = pad(dt.getMinutes());
-      el('#quando').value = `${yyyy}-${mm}-${dd}T${hh}:${min}`;
-      el('#antecedencia').value = t.antecedencia || 0;
-      el('#prioridade').value = t.prioridade || 'media';
-      el('#descricao').value = t.descricao || '';
-      el('#notificar').checked = !!t.notificar;
-
-      const form = el('#task-form');
-      const originalSubmitHandler = form.onsubmit; 
-      
-      form.onsubmit = async (ev)=>{
-        ev.preventDefault();
-        const updatedPayload = {
-          titulo: el('#titulo').value.trim(),
-          quando: el('#quando').value,
-          antecedencia: Number(el('#antecedencia').value),
-          prioridade: el('#prioridade').value,
-          descricao: el('#descricao').value.trim(),
-          notificar: el('#notificar').checked ? 1 : 0,
-          concluida: t.concluida ? 1 : 0
-        };
-        const updated = await updateTask(id, updatedPayload);
-        tarefas = tarefas.map(x=> x.id===updated.id?updated:x);
-        render();
-        scheduleAllNotifications();
-        el('#status-area-task').textContent = 'Atualizado.';
-        form.onsubmit = originalSubmitHandler; 
-        form.reset();
-      };
-    } else if(action === 'excluir-task'){
-      if(!confirm('Excluir essa tarefa?')) return;
-      await deleteTask(id);
-      tarefas = tarefas.filter(x=> String(x.id) !== String(id));
-      render();
-    } else if(action === 'editar-os'){
-      const os = osList.find(x => String(x.id) === String(id));
-      if (!os) return;
-      el('#ordem-servico-tab').click(); 
-      el('#numero_os').value = os.numero_os;
-      el('#cliente').value = os.cliente;
-      el('#tecnico').value = os.tecnico;
-      el('#descricao_os').value = os.descricao;
-      
-      const form = el('#os-form');
-      const originalSubmitHandler = form.onsubmit;
-      
-      form.onsubmit = async (ev) => {
-        ev.preventDefault();
-        const updatedPayload = {
-          numero_os: el('#numero_os').value.trim(),
-          cliente: el('#cliente').value.trim(),
-          tecnico: el('#tecnico').value.trim(),
-          descricao: el('#descricao_os').value.trim(),
-          status: os.status 
-        };
-        const updated = await updateOS(id, updatedPayload);
-        osList = osList.map(x => x.id === updated.id ? updated : x);
-        render();
-        el('#status-area-os').textContent = 'O.S. atualizada.';
-        form.onsubmit = originalSubmitHandler;
-        form.reset();
-      };
-    } else if(action === 'excluir-os'){
-      if(!confirm('Excluir essa O.S.?')) return;
-      await deleteOS(id);
-      osList = osList.filter(x=> String(x.id) !== String(id));
-      render();
-    } else if (action === 'excluir-almoxarifado') {
-      if (!confirm('Excluir este item do almoxarifado?')) return;
-      await deleteAlmoxarifadoItem(id);
-      almoxarifadoList = almoxarifadoList.filter(x => String(x.id) !== String(id));
-      render();
-    }
-  });
-
-  // filtros
-  el('#buscar-tarefas').addEventListener('input', render);
-  el('#buscar-os').addEventListener('input', render);
-  
-  // Sair
-  document.getElementById('logout-btn').addEventListener('click', function() {
-      sessionStorage.clear();
-      window.location.href = 'login.html';
-  });
-
-  // inicialização
-  (async ()=>{
-    await requestPermission();
-    await loadAllData();
-  })();
-</script>
+    })();
+  </script>
 </body>
 </html>
