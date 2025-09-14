@@ -9,7 +9,8 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   
   <script>
-    if (localStorage.getItem('isLoggedIn') !== 'true') {
+    const userRole = localStorage.getItem('userRole');
+    if (userRole !== 'admin') {
         window.location.href = 'login.html';
     }
   </script>
@@ -103,8 +104,11 @@
   
   <div class="container mt-4">
     <div class="card p-4">
-      <div class="d-flex justify-content-center">
-        <img src="/images/image_64f7fe.png" alt="Logo da Empresa" style="max-height: 100px;">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <img src="/images/image_64f7fe.png" alt="Logo da Empresa" style="max-height: 80px;">
+        <button id="logout-btn" class="btn btn-outline-danger">
+            <i class="bi bi-box-arrow-right"></i> Sair
+        </button>
       </div>
       <h1 class="card-title text-center p-3">Grupo ST Comunicaçao Integrada</h1>
 
@@ -726,6 +730,12 @@
   // filtros
   el('#buscar-tarefas').addEventListener('input', render);
   el('#buscar-os').addEventListener('input', render);
+  
+  // Sair
+  document.getElementById('logout-btn').addEventListener('click', function() {
+      localStorage.clear();
+      window.location.href = 'login.html';
+  });
 
   // inicialização
   (async ()=>{
