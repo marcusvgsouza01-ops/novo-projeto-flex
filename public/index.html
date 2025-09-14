@@ -507,7 +507,6 @@
                     antecedencia: Number(el('#antecedencia').value),
                     prioridade: el('#prioridade').value,
                     descricao: el('#descricao').value.trim(),
-                    notificar: el('#notificar').checked,
                     concluida: t.concluida
                 };
                 await updateTask(id, updatedPayload);
