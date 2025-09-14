@@ -695,38 +695,6 @@
     }
   });
 
-  // exportar / limpar
-  el('#exportar').addEventListener('click', ()=>{
-    const passwordAttempt = prompt('Digite a senha para exportar:');
-    if (passwordAttempt !== ADMIN_PASSWORD) {
-        alert('Senha incorreta.');
-        return;
-    }
-    const data = { tarefas, os: osList, almoxarifado: almoxarifadoList };
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type:'application/json' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = 'dados_agenda.json';
-    a.click();
-  });
-
-  el('#apagarTudo').addEventListener('click', async ()=>{
-    const passwordAttempt = prompt('Digite a senha para apagar TUDO:');
-    if (passwordAttempt !== ADMIN_PASSWORD) {
-        alert('Senha incorreta.');
-        return;
-    }
-    if(!confirm('Apagar todos os dados do servidor? Esta ação é irreversível.')) return;
-    for(const t of tarefas){ await deleteTask(t.id); }
-    for(const os of osList){ await deleteOS(os.id); }
-    for(const item of almoxarifadoList){ await deleteAlmoxarifadoItem(item.id); }
-    tarefas = [];
-    osList = [];
-    almoxarifadoList = [];
-    render();
-    el('#status-area-task').textContent = 'Todos os dados foram apagados.';
-  });
-
   // filtros
   el('#buscar-tarefas').addEventListener('input', render);
   el('#buscar-os').addEventListener('input', render);
@@ -745,18 +713,3 @@
 </script>
 </body>
 </html>
-```
-eof
-
----
-
-Com esses arquivos, você pode testar o login do novo usuário **`pcp123`** (senha: **`pcp123`**).
-
-**Próximos Passos**
-1.  **Salve os arquivos:** Salve os três arquivos (`pcp.html`, `login.html`, `index.html`) com o código que eu acabei de te dar.
-2.  **Atualize o Git:**
-    ```bash
-    git add .
-    git commit -m "Criando a página e usuário para o setor de PCP"
-    git push origin main
-    
