@@ -584,100 +584,6 @@
             render();
         });
 
-        // Adicionando listeners para os botões aqui dentro
-        el('#btn-objetivo-os').addEventListener('click', () => {
-            el('#objetivo-selector').classList.add('d-none');
-            el('#form-objetivo-os').classList.remove('d-none');
-        });
-
-        el('#btn-objetivo-produtividade').addEventListener('click', () => {
-            el('#objetivo-selector').classList.add('d-none');
-            el('#form-objetivo-produtividade').classList.remove('d-none');
-        });
-        
-        el('#switch-account-btn').addEventListener('click', function() {
-            sessionStorage.clear();
-            window.location.href = 'login.html';
-        });
-
-        el('#back-to-selector').addEventListener('click', () => {
-            el('#objetivo-selector').classList.remove('d-none');
-            el('#form-objetivo-os').classList.add('d-none');
-            el('#form-objetivo-os').reset();
-        });
-        
-        el('#back-to-selector2').addEventListener('click', () => {
-            el('#objetivo-selector').classList.remove('d-none');
-            el('#form-objetivo-produtividade').classList.add('d-none');
-            el('#form-objetivo-produtividade').reset();
-        });
-
-        el('#form-objetivo-os').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const payload = {
-                tipo: 'os',
-                numero_os: el('#numero_os_obj').value.trim(),
-                cliente: el('#cliente_obj').value.trim(),
-                data_entrega_setor: el('#data_entrega_setor_obj').value ? new Date(el('#data_entrega_setor_obj').value) : null,
-                data_final_embalar: el('#data_final_embalar_obj').value ? new Date(el('#data_final_embalar_obj').value) : null
-            };
-            el('#status-objetivo-os').textContent = 'Salvando...';
-            await createObjetivo(payload);
-            el('#status-objetivo-os').textContent = 'Objetivo de O.S. salvo e visível para todos!';
-            showNotification('Novo Objetivo de O.S. Criado!');
-            e.target.reset();
-            el('#objetivo-selector').classList.remove('d-none');
-            el('#form-objetivo-os').classList.add('d-none');
-        });
-
-        el('#form-objetivo-produtividade').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const payload = {
-                tipo: 'produtividade',
-                setores_envolvidos: el('#setores_envolvidos_obj').value.trim(),
-                meta_pedidos: Number(el('#meta_pedidos_obj').value),
-                tempo_entrega_setor: Number(el('#tempo_entrega_setor_obj').value),
-                tempo_final_embalar: Number(el('#tempo_final_embalar_obj').value)
-            };
-            el('#status-objetivo-prod').textContent = 'Salvando...';
-            await createObjetivo(payload);
-            el('#status-objetivo-prod').textContent = 'Objetivo de Produtividade salvo e visível para todos!';
-            showNotification('Novo Objetivo de Produtividade Criado!');
-            e.target.reset();
-            el('#objetivo-selector').classList.remove('d-none');
-            el('#form-objetivo-produtividade').classList.add('d-none');
-        });
-
-        el('#task-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const payload = {
-                titulo: el('#titulo').value.trim(),
-                quando: el('#quando').value ? new Date(el('#quando').value) : null,
-                antecedencia: Number(el('#antecedencia').value),
-                prioridade: el('#prioridade').value,
-                descricao: el('#descricao').value.trim(),
-                notificar: el('#notificar').checked
-            };
-            el('#status-area-task').textContent = 'Salvando...';
-            await createTask(payload);
-            el('#status-area-task').textContent = 'Tarefa salva.';
-            e.target.reset();
-        });
-
-        el('#os-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const payload = {
-                numero_os: el('#numero_os').value.trim(),
-                cliente: el('#cliente').value.trim(),
-                tecnico: el('#tecnico').value.trim(),
-                descricao: el('#descricao_os').value.trim()
-            };
-            el('#status-area-os').textContent = 'Salvando O.S...';
-            await createOS(payload);
-            el('#status-area-os').textContent = 'O.S. salva.';
-            e.target.reset();
-        });
-
         document.addEventListener('click', async (ev) => {
             const btn = ev.target.closest('button[data-action]');
             if (!btn) return;
@@ -794,30 +700,146 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-        (async () => {
-            try {
-                if (initialAuthToken) {
-                    const userCredential = await signInWithCustomToken(auth, initialAuthToken);
-                    userId = userCredential.user.uid;
-                } else {
-                    const userCredential = await signInAnonymously(auth);
-                    userId = userCredential.user.uid;
-                }
-                
-                onAuthStateChanged(auth, (user) => {
-                    if (user) {
-                        userId = user.uid;
-                        setupListeners();
-                    } else {
-                        console.log("Nenhum usuário logado.");
-                    }
-                });
+      // Listener para os botões que não dependem do Firebase
+      el('#btn-objetivo-os').addEventListener('click', () => {
+          el('#objetivo-selector').classList.add('d-none');
+          el('#form-objetivo-os').classList.remove('d-none');
+      });
 
-            } catch (error) {
-                console.error("Erro na autenticação:", error);
-            }
-        })();
+      el('#btn-objetivo-produtividade').addEventListener('click', () => {
+          el('#objetivo-selector').classList.add('d-none');
+          el('#form-objetivo-produtividade').classList.remove('d-none');
+      });
+      
+      el('#switch-account-btn').addEventListener('click', function() {
+          sessionStorage.clear();
+          window.location.href = 'login.html';
+      });
+
+      el('#back-to-selector').addEventListener('click', () => {
+          el('#objetivo-selector').classList.remove('d-none');
+          el('#form-objetivo-os').classList.add('d-none');
+          el('#form-objetivo-os').reset();
+      });
+      
+      el('#back-to-selector2').addEventListener('click', () => {
+          el('#objetivo-selector').classList.remove('d-none');
+          el('#form-objetivo-produtividade').classList.add('d-none');
+          el('#form-objetivo-produtividade').reset();
+      });
+
+      el('#form-objetivo-os').addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const payload = {
+              tipo: 'os',
+              numero_os: el('#numero_os_obj').value.trim(),
+              cliente: el('#cliente_obj').value.trim(),
+              data_entrega_setor: el('#data_entrega_setor_obj').value ? new Date(el('#data_entrega_setor_obj').value) : null,
+              data_final_embalar: el('#data_final_embalar_obj').value ? new Date(el('#data_final_embalar_obj').value) : null
+          };
+          el('#status-objetivo-os').textContent = 'Salvando...';
+          await createObjetivo(payload);
+          el('#status-objetivo-os').textContent = 'Objetivo de O.S. salvo e visível para todos!';
+          showNotification('Novo Objetivo de O.S. Criado!');
+          e.target.reset();
+          el('#objetivo-selector').classList.remove('d-none');
+          el('#form-objetivo-os').classList.add('d-none');
+      });
+
+      el('#form-objetivo-produtividade').addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const payload = {
+              tipo: 'produtividade',
+              setores_envolvidos: el('#setores_envolvidos_obj').value.trim(),
+              meta_pedidos: Number(el('#meta_pedidos_obj').value),
+              tempo_entrega_setor: Number(el('#tempo_entrega_setor_obj').value),
+              tempo_final_embalar: Number(el('#tempo_final_embalar_obj').value)
+          };
+          el('#status-objetivo-prod').textContent = 'Salvando...';
+          await createObjetivo(payload);
+          el('#status-objetivo-prod').textContent = 'Objetivo de Produtividade salvo e visível para todos!';
+          showNotification('Novo Objetivo de Produtividade Criado!');
+          e.target.reset();
+          el('#objetivo-selector').classList.remove('d-none');
+          el('#form-objetivo-produtividade').classList.add('d-none');
+      });
+
+      el('#task-form').addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const payload = {
+              titulo: el('#titulo').value.trim(),
+              quando: el('#quando').value ? new Date(el('#quando').value) : null,
+              antecedencia: Number(el('#antecedencia').value),
+              prioridade: el('#prioridade').value,
+              descricao: el('#descricao').value.trim(),
+              notificar: el('#notificar').checked
+          };
+          el('#status-area-task').textContent = 'Salvando...';
+          await createTask(payload);
+          el('#status-area-task').textContent = 'Tarefa salva.';
+          e.target.reset();
+      });
+
+      el('#os-form').addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const payload = {
+              numero_os: el('#numero_os').value.trim(),
+              cliente: el('#cliente').value.trim(),
+              tecnico: el('#tecnico').value.trim(),
+              descricao: el('#descricao_os').value.trim()
+          };
+          el('#status-area-os').textContent = 'Salvando O.S...';
+          await createOS(payload);
+          el('#status-area-os').textContent = 'O.S. salva.';
+          e.target.reset();
+      });
+      
+      // Inicializar Firebase e listeners de dados
+      (async () => {
+          try {
+              if (initialAuthToken) {
+                  const userCredential = await signInWithCustomToken(auth, initialAuthToken);
+                  userId = userCredential.user.uid;
+              } else {
+                  const userCredential = await signInAnonymously(auth);
+                  userId = userCredential.user.uid;
+              }
+              
+              onAuthStateChanged(auth, (user) => {
+                  if (user) {
+                      userId = user.uid;
+                      setupListeners();
+                  } else {
+                      console.log("Nenhum usuário logado.");
+                  }
+              });
+
+          } catch (error) {
+              console.error("Erro na autenticação:", error);
+          }
+      })();
     });
   </script>
 </body>
 </html>
+```
+eof
+
+### O que mudou e por que isso vai funcionar?
+
+Eu separei a lógica do código em duas partes:
+
+1.  **Lógica dos Botões (`DOMContentLoaded`)**: A funcionalidade dos botões "Trocar de Conta" e dos botões do "Objetivo" agora é ativada assim que a página é carregada. Isso elimina qualquer dependência de tempo com a autenticação do Firebase.
+2.  **Lógica do Banco de Dados (`onAuthStateChanged`)**: As funções que interagem com o Firestore (`onSnapshot`, `addDoc`, etc.) só são ativadas depois que o usuário está autenticado e o ID dele está disponível.
+
+Isso cria uma estrutura mais robusta e garante que cada parte do seu código seja executada no momento certo.
+
+Depois de substituir o arquivo, por favor, siga estes passos:
+
+1.  **Limpe o cache do seu navegador:** Isso é **fundamental** para garantir que você não esteja vendo uma versão antiga da página.
+2.  **Use os comandos Git para publicar a mudança:**
+    ```bash
+    git add .
+    git commit -m "Refatoração: separada a lógica dos botões da autenticação do Firebase."
+    git push origin main
+    
