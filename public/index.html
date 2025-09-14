@@ -409,7 +409,6 @@
     let userId = null;
 
     function el(sel) { return document.querySelector(sel); }
-    const switchAccountBtn = el('#switch-account-btn');
     const notificationBanner = el('#notification-banner');
 
     let tarefas = [];
@@ -618,14 +617,22 @@
         await setDoc(doc(db, `artifacts/${appId}/public/data/objetivos`, id), payload, { merge: true });
     }
     
-    el('#btn-objetivo-os').addEventListener('click', () => {
-        el('#objetivo-selector').classList.add('d-none');
-        el('#form-objetivo-os').classList.remove('d-none');
-    });
+    // Adicionando um listener para garantir que o DOM está pronto
+    document.addEventListener('DOMContentLoaded', () => {
+        el('#btn-objetivo-os').addEventListener('click', () => {
+            el('#objetivo-selector').classList.add('d-none');
+            el('#form-objetivo-os').classList.remove('d-none');
+        });
 
-    el('#btn-objetivo-produtividade').addEventListener('click', () => {
-        el('#objetivo-selector').classList.add('d-none');
-        el('#form-objetivo-produtividade').classList.remove('d-none');
+        el('#btn-objetivo-produtividade').addEventListener('click', () => {
+            el('#objetivo-selector').classList.add('d-none');
+            el('#form-objetivo-produtividade').classList.remove('d-none');
+        });
+        
+        el('#switch-account-btn').addEventListener('click', function() {
+            sessionStorage.clear();
+            window.location.href = 'login.html';
+        });
     });
 
     el('#back-to-selector').addEventListener('click', () => {
@@ -788,11 +795,6 @@
 
     el('#buscar-tarefas').addEventListener('input', render);
     el('#buscar-os').addEventListener('input', render);
-    
-    switchAccountBtn.addEventListener('click', function() {
-        sessionStorage.clear();
-        window.location.href = 'login.html';
-    });
 
     (async () => {
       try {
@@ -827,17 +829,17 @@ eof
 
 ### Próximos Passos
 
-Para que você possa testar essa nova funcionalidade e continuar nosso trabalho, aqui estão os comandos Git para atualizar o seu projeto:
+Agora, pode atualizar o seu projeto com este novo arquivo para aplicar a correção. Os comandos são os mesmos:
 
 1.  **Adicionar as alterações:**
     ```shell
     git add .
     ```
-2.  **Confirmar as mudanças com uma mensagem clara:**
+2.  **Confirmar as mudanças:**
     ```shell
-    git commit -m "Funcionalidade de Objetivos implementada na página principal."
+    git commit -m "Correção de bug: botão 'Trocar de Conta' agora funciona."
     ```
-3.  **Enviar as alterações para o repositório remoto:**
+3.  **Enviar as alterações:**
     ```shell
     git push
     
