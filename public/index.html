@@ -123,25 +123,25 @@
 
       <ul class="nav nav-tabs" id="myTab" role="tablist">
         <li class="nav-item" role="presentation">
-            <button class="nav-link active" id="objetivos-tab" data-bs-toggle="tab" data-bs-target="#objetivos" type="button" role="tab" aria-controls="objetivos" aria-selected="true">Objetivos</button>
+            <a class="nav-link" href="index.html" aria-selected="true">Objetivos</a>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link" id="almoxarifado-tab" data-bs-toggle="tab" data-bs-target="#almoxarifado" type="button" role="tab" aria-controls="almoxarifado" aria-selected="false">Almoxarifado</button>
+            <a class="nav-link" href="almoxarifado.html" aria-selected="false">Almoxarifado</a>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link" id="pcp-tab" data-bs-toggle="tab" data-bs-target="#pcp" type="button" role="tab" aria-controls="pcp" aria-selected="false">PCP</button>
+            <a class="nav-link" href="pcp.html" aria-selected="false">PCP</a>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link" id="producao-tab" data-bs-toggle="tab" data-bs-target="#producao" type="button" role="tab" aria-controls="producao" aria-selected="false">Produção</button>
+            <a class="nav-link" href="producao.html" aria-selected="false">Produção</a>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link" id="expedicao-tab" data-bs-toggle="tab" data-bs-target="#expedicao" type="button" role="tab" aria-controls="expedicao" aria-selected="false">Expedição</button>
+            <a class="nav-link" href="expedicao.html" aria-selected="false">Expedição</a>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link" id="tarefas-tab" data-bs-toggle="tab" data-bs-target="#tarefas" type="button" role="tab" aria-controls="tarefas" aria-selected="false">Tarefas</button>
+            <a class="nav-link" href="index.html#tarefas" aria-selected="false">Tarefas</a>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link" id="ordem-servico-tab" data-bs-toggle="tab" data-bs-target="#ordem-servico" type="button" role="tab" aria-controls="ordem-servico" aria-selected="false">O.S</button>
+            <a class="nav-link" href="index.html#ordem-servico" aria-selected="false">O.S</a>
         </li>
       </ul>
 
@@ -151,45 +151,16 @@
             <p>Aqui você poderá adicionar e acompanhar seus objetivos.</p>
         </div>
         <div class="tab-pane fade" id="almoxarifado" role="tabpanel" aria-labelledby="almoxarifado-tab">
-            <form id="form-almoxarifado" class="mb-3">
-                <div class="mb-3">
-                    <label for="item-almoxarifado" class="form-label">Item</label>
-                    <input type="text" class="form-control" id="item-almoxarifado" required>
-                </div>
-                <div class="mb-3">
-                    <label for="quantidade-almoxarifado" class="form-label">Quantidade</label>
-                    <input type="number" class="form-control" id="quantidade-almoxarifado" required>
-                </div>
-                <div class="mb-3">
-                    <label for="responsavel-almoxarifado" class="form-label">Responsável</label>
-                    <input type="text" class="form-control" id="responsavel-almoxarifado" required>
-                </div>
-                <button type="submit" class="btn btn-primary w-100">Adicionar Item</button>
-            </form>
-            <div class="table-responsive">
-              <table class="table table-dark table-hover table-sm">
-                <thead>
-                  <tr>
-                    <th>ID</th>
-                    <th>Item</th>
-                    <th>Quantidade</th>
-                    <th>Responsável</th>
-                    <th>Data</th>
-                    <th>Ações</th>
-                  </tr>
-                </thead>
-                <tbody id="lista-almoxarifado">
-                </tbody>
-              </table>
-            </div>
+            <h5 class="text-white">Conteúdo do Módulo de Almoxarifado</h5>
+            <p>Este módulo agora está em um arquivo separado para melhor organização.</p>
         </div>
         <div class="tab-pane fade" id="pcp" role="tabpanel" aria-labelledby="pcp-tab">
             <h5 class="text-white">Conteúdo do Módulo de PCP</h5>
-            <p>Gerenciamento de Planejamento e Controle da Produção.</p>
+            <p>Este módulo agora está em um arquivo separado para melhor organização.</p>
         </div>
         <div class="tab-pane fade" id="producao" role="tabpanel" aria-labelledby="producao-tab">
             <h5 class="text-white">Conteúdo do Módulo de Produção</h5>
-            <p>Acompanhamento e registro da produção diária.</p>
+            <p>Este módulo agora está em um arquivo separado para melhor organização.</p>
         </div>
         <div class="tab-pane fade" id="expedicao" role="tabpanel" aria-labelledby="expedicao-tab">
             <h5 class="text-white">Conteúdo do Módulo de Expedição</h5>
@@ -324,7 +295,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, doc, getDoc, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where, serverTimestamp, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getFirestore, doc, addDoc, setDoc, deleteDoc, onSnapshot, collection, query, where, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
     import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
     
     // Configurações e variáveis globais do ambiente
@@ -346,7 +317,6 @@
     // Estado da aplicação
     let tarefas = [];
     let osList = [];
-    let almoxarifadoList = [];
     
     // Funções auxiliares
     function formatDate(timestamp) {
@@ -417,29 +387,6 @@
         });
     }
 
-    function renderAlmoxarifadoTable(tbodySel, list) {
-        const tbody = el(tbodySel);
-        tbody.innerHTML = '';
-        if (list.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="6" class="text-white text-center">Nenhum item cadastrado.</td></tr>';
-            return;
-        }
-        list.forEach(item => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td>${item.id}</td>
-                <td>${item.item}</td>
-                <td>${item.quantidade}</td>
-                <td>${item.responsavel}</td>
-                <td>${item.data_registro ? formatDate(item.data_registro) : 'N/A'}</td>
-                <td>
-                    <button class="btn btn-sm btn-outline-danger" data-id="${item.id}" data-action="excluir-almoxarifado"><i class="bi bi-trash3-fill"></i></button>
-                </td>
-            `;
-            tbody.appendChild(tr);
-        });
-    }
-
     // Renderização principal e filtros
     function render() {
         const qTarefas = el('#buscar-tarefas').value.trim().toLowerCase();
@@ -452,7 +399,6 @@
         renderTasksTable('#lista-tarefas', pendentesTarefas);
         renderTasksTable('#lista-tarefas-concluidas', concluidas);
         renderOSTable('#lista-os', osFiltradas);
-        renderAlmoxarifadoTable('#lista-almoxarifado', almoxarifadoList);
     }
 
     // Listeners do Firebase
@@ -468,13 +414,6 @@
         onSnapshot(query(collection(db, `artifacts/${appId}/users/${userId}/os`)), (snapshot) => {
             const docs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             osList = docs;
-            render();
-        });
-
-        // Almoxarifado
-        onSnapshot(query(collection(db, `artifacts/${appId}/users/${userId}/almoxarifado`)), (snapshot) => {
-            const docs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            almoxarifadoList = docs;
             render();
         });
     }
@@ -502,14 +441,6 @@
 
     async function deleteOS(id) {
         await deleteDoc(doc(db, `artifacts/${appId}/users/${userId}/os`, id));
-    }
-
-    async function createAlmoxarifadoItem(payload) {
-        await addDoc(collection(db, `artifacts/${appId}/users/${userId}/almoxarifado`), { ...payload, data_registro: serverTimestamp() });
-    }
-
-    async function deleteAlmoxarifadoItem(id) {
-        await deleteDoc(doc(db, `artifacts/${appId}/users/${userId}/almoxarifado`, id));
     }
 
     // Eventos e inicialização
@@ -540,17 +471,6 @@
         el('#status-area-os').textContent = 'Salvando O.S...';
         await createOS(payload);
         el('#status-area-os').textContent = 'O.S. salva.';
-        e.target.reset();
-    });
-
-    el('#form-almoxarifado').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const payload = {
-            item: el('#item-almoxarifado').value.trim(),
-            quantidade: Number(el('#quantidade-almoxarifado').value),
-            responsavel: el('#responsavel-almoxarifado').value.trim()
-        };
-        await createAlmoxarifadoItem(payload);
         e.target.reset();
     });
 
@@ -625,8 +545,6 @@
             };
         } else if (action === 'excluir-os') {
             await deleteOS(id);
-        } else if (action === 'excluir-almoxarifado') {
-            await deleteAlmoxarifadoItem(id);
         }
     });
 
