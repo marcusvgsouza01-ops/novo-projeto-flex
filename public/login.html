@@ -77,22 +77,22 @@
             const statusMessage = document.getElementById('status-message');
 
             if (username === 'adim123' && password === 'Maria321') {
-                localStorage.setItem('userRole', 'admin');
+                sessionStorage.setItem('userRole', 'admin');
                 statusMessage.textContent = 'Login bem-sucedido! Redirecionando...';
                 statusMessage.style.color = '#2ecc71';
                 setTimeout(() => { window.location.href = 'index.html'; }, 500);
             } else if (username === 'producao123' && password === 'producao123') {
-                localStorage.setItem('userRole', 'producao');
+                sessionStorage.setItem('userRole', 'producao');
                 statusMessage.textContent = 'Login bem-sucedido! Redirecionando...';
                 statusMessage.style.color = '#2ecc71';
                 setTimeout(() => { window.location.href = 'producao.html'; }, 500);
             } else if (username === 'pcp123' && password === 'pcp123') {
-                localStorage.setItem('userRole', 'pcp');
+                sessionStorage.setItem('userRole', 'pcp');
                 statusMessage.textContent = 'Login bem-sucedido! Redirecionando...';
                 statusMessage.style.color = '#2ecc71';
                 setTimeout(() => { window.location.href = 'pcp.html'; }, 500);
             } else if (username === 'almoxarifado123' && password === 'almoxarifado123') {
-                localStorage.setItem('userRole', 'almoxarifado');
+                sessionStorage.setItem('userRole', 'almoxarifado');
                 statusMessage.textContent = 'Login bem-sucedido! Redirecionando...';
                 statusMessage.style.color = '#2ecc71';
                 setTimeout(() => { window.location.href = 'almoxarifado.html'; }, 500);

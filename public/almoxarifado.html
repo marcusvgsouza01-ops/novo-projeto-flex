@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     
     <script>
-        const userRole = localStorage.getItem('userRole');
+        const userRole = sessionStorage.getItem('userRole');
         if (userRole !== 'almoxarifado') {
             window.location.href = 'login.html';
         }
@@ -51,9 +51,27 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         document.getElementById('logout-btn').addEventListener('click', function() {
-            localStorage.clear();
+            sessionStorage.clear();
             window.location.href = 'login.html';
         });
     </script>
 </body>
 </html>
+```
+eof
+
+---
+
+### Comandos Git para a Atualização
+
+Para registrar essa correção no seu histórico, use os seguintes comandos:
+
+```shell
+# Adiciona os arquivos atualizados ao Git
+git add .
+
+# Cria um novo commit com a descrição da mudança
+git commit -m "Corrige o login para usar sessionStorage e deslogar ao fechar o navegador"
+
+# Envia as alterações para o seu repositório remoto
+git push
