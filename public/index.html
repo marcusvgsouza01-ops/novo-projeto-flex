@@ -148,22 +148,47 @@
         <div class="tab-pane fade show active" id="objetivos" role="tabpanel" aria-labelledby="objetivos-tab">
             <h5 class="text-white">Conteúdo do Módulo de Objetivos</h5>
             <p>Acompanhamento dos objetivos do grupo.</p>
+            <div class="text-center-btn">
+                <button id="switch-account-btn-obj" class="btn btn-outline-danger w-50">
+                    <i class="bi bi-person-fill-gear"></i> Trocar de Conta
+                </button>
+            </div>
         </div>
         <div class="tab-pane fade" id="almoxarifado" role="tabpanel" aria-labelledby="almoxarifado-tab">
             <h5 class="text-white">Conteúdo do Módulo de Almoxarifado</h5>
             <p>Gerenciamento de estoque e materiais.</p>
+            <div class="text-center-btn">
+                <button id="switch-account-btn-almox" class="btn btn-outline-danger w-50">
+                    <i class="bi bi-person-fill-gear"></i> Trocar de Conta
+                </button>
+            </div>
         </div>
         <div class="tab-pane fade" id="pcp" role="tabpanel" aria-labelledby="pcp-tab">
             <h5 class="text-white">Conteúdo do Módulo de PCP</h5>
             <p>Planejamento e controle da produção.</p>
+            <div class="text-center-btn">
+                <button id="switch-account-btn-pcp" class="btn btn-outline-danger w-50">
+                    <i class="bi bi-person-fill-gear"></i> Trocar de Conta
+                </button>
+            </div>
         </div>
         <div class="tab-pane fade" id="producao" role="tabpanel" aria-labelledby="producao-tab">
             <h5 class="text-white">Conteúdo do Módulo de Produção</h5>
             <p>Acompanhamento da produção em tempo real.</p>
+            <div class="text-center-btn">
+                <button id="switch-account-btn-prod" class="btn btn-outline-danger w-50">
+                    <i class="bi bi-person-fill-gear"></i> Trocar de Conta
+                </button>
+            </div>
         </div>
         <div class="tab-pane fade" id="expedicao" role="tabpanel" aria-labelledby="expedicao-tab">
             <h5 class="text-white">Conteúdo do Módulo de Expedição</h5>
             <p>Acompanhamento dos pedidos para envio.</p>
+            <div class="text-center-btn">
+                <button id="switch-account-btn-exped" class="btn btn-outline-danger w-50">
+                    <i class="bi bi-person-fill-gear"></i> Trocar de Conta
+                </button>
+            </div>
         </div>
         <div class="tab-pane fade" id="tarefas" role="tabpanel" aria-labelledby="tarefas-tab">
           <form id="task-form" class="mb-3">
@@ -232,6 +257,11 @@
               </tbody>
             </table>
           </div>
+          <div class="text-center-btn">
+            <button id="switch-account-btn-tarefas" class="btn btn-outline-danger w-50">
+                <i class="bi bi-person-fill-gear"></i> Trocar de Conta
+            </button>
+        </div>
         </div>
         <div class="tab-pane fade" id="ordem-servico" role="tabpanel" aria-labelledby="ordem-servico-tab">
             <div class="input-group mb-3">
@@ -273,15 +303,14 @@
                 </tbody>
               </table>
             </div>
+            <div class="text-center-btn">
+                <button id="switch-account-btn-os" class="btn btn-outline-danger w-50">
+                    <i class="bi bi-person-fill-gear"></i> Trocar de Conta
+                </button>
+            </div>
         </div>
       </div>
     </div>
-  </div>
-  
-  <div class="text-center-btn">
-    <button id="switch-account-btn" class="btn btn-outline-danger w-50">
-        <i class="bi bi-person-fill-gear"></i> Trocar de Conta
-    </button>
   </div>
   
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
@@ -494,6 +523,26 @@
             el('#status-area-os').textContent = 'O.S. salva.';
             e.target.reset();
         });
+        
+        const switchAccountButtons = [
+            '#switch-account-btn-obj',
+            '#switch-account-btn-almox',
+            '#switch-account-btn-pcp',
+            '#switch-account-btn-prod',
+            '#switch-account-btn-exped',
+            '#switch-account-btn-tarefas',
+            '#switch-account-btn-os'
+        ];
+
+        switchAccountButtons.forEach(buttonId => {
+            const button = document.querySelector(buttonId);
+            if (button) {
+                button.addEventListener('click', () => {
+                    sessionStorage.clear();
+                    window.location.href = 'login.html';
+                });
+            }
+        });
     }
 
     async function createTask(payload) {
@@ -521,11 +570,6 @@
     }
     
     document.addEventListener('DOMContentLoaded', () => {
-      el('#switch-account-btn').addEventListener('click', function() {
-          sessionStorage.clear();
-          window.location.href = 'login.html';
-      });
-
       (async () => {
           const app = initializeApp(firebaseConfig);
           db = getFirestore(app);
