@@ -24,7 +24,7 @@
       --cor-destaque: #3498db;
       --cor-sucesso: #2ecc71;
       --cor-aviso: #f1c40f;
-      --cor-perigo: #e74c3c;
+      --cor-perigo: #e74c4c;
     }
     body {
       background-color: var(--cor-fundo);
@@ -109,6 +109,43 @@
         margin-top: 2rem;
         margin-bottom: 1rem;
     }
+    .objetivo-item {
+        margin-bottom: 1.5rem;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        border: 1px solid var(--cor-borda);
+        background-color: #46607a;
+    }
+    .objetivo-item h6 {
+      color: var(--cor-destaque);
+    }
+    .objetivo-item p {
+      margin-bottom: 0.5rem;
+    }
+    .objetivo-item.concluido {
+      opacity: 0.6;
+      text-decoration: line-through;
+    }
+    .notification-banner {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        z-index: 1000;
+        min-width: 250px;
+        background-color: var(--cor-destaque);
+        color: var(--cor-texto);
+        padding: 15px;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        display: none;
+        animation: fadeInOut 5s forwards;
+    }
+    @keyframes fadeInOut {
+        0% { opacity: 0; }
+        10% { opacity: 1; }
+        90% { opacity: 1; }
+        100% { opacity: 0; display: none; }
+    }
   </style>
 </head>
 <body>
@@ -146,8 +183,73 @@
 
       <div class="tab-content mt-3" id="myTabContent">
         <div class="tab-pane fade show active" id="objetivos" role="tabpanel" aria-labelledby="objetivos-tab">
-            <h5 class="text-white">Conteúdo do Módulo de Objetivos</h5>
-            <p>Aqui você poderá adicionar e acompanhar seus objetivos.</p>
+            <!-- UI para escolher o tipo de objetivo -->
+            <div id="objetivo-selector" class="text-center mb-4">
+                <h5 class="text-white">Escolha o tipo de Objetivo a ser definido:</h5>
+                <button id="btn-objetivo-os" class="btn btn-primary me-2">Objetivo de O.S.</button>
+                <button id="btn-objetivo-produtividade" class="btn btn-primary">Objetivo de Produtividade</button>
+            </div>
+            
+            <!-- Formulário Objetivo de O.S. (invisível por padrão) -->
+            <form id="form-objetivo-os" class="mb-3 d-none">
+                <h5 class="text-white mb-3">Definir Objetivo de O.S.</h5>
+                <div class="mb-3">
+                    <label for="numero_os_obj" class="form-label">Número de O.S.</label>
+                    <input type="text" class="form-control" id="numero_os_obj" required>
+                </div>
+                <div class="mb-3">
+                    <label for="cliente_obj" class="form-label">Nome do Cliente</label>
+                    <input type="text" class="form-control" id="cliente_obj" required>
+                </div>
+                <div class="mb-3">
+                    <label for="data_entrega_setor_obj" class="form-label">Data para Entrega de Cada Setor</label>
+                    <input type="datetime-local" class="form-control" id="data_entrega_setor_obj">
+                </div>
+                <div class="mb-3">
+                    <label for="data_final_embalar_obj" class="form-label">Data Final para Estar Embalada</label>
+                    <input type="datetime-local" class="form-control" id="data_final_embalar_obj">
+                </div>
+                <button type="submit" class="btn btn-success w-100">Salvar Objetivo de O.S.</button>
+                <button type="button" class="btn btn-secondary w-100 mt-2" id="back-to-selector">Voltar</button>
+                <p id="status-objetivo-os" class="mt-2 text-center text-white"></p>
+            </form>
+
+            <!-- Formulário Objetivo de Produtividade (invisível por padrão) -->
+            <form id="form-objetivo-produtividade" class="mb-3 d-none">
+                <h5 class="text-white mb-3">Definir Objetivo de Produtividade</h5>
+                <div class="mb-3">
+                    <label for="setores_envolvidos_obj" class="form-label">Setores Envolvidos</label>
+                    <input type="text" class="form-control" id="setores_envolvidos_obj" placeholder="Ex: Produção, Expedição" required>
+                </div>
+                <div class="mb-3">
+                    <label for="meta_pedidos_obj" class="form-label">Meta de Pedidos</label>
+                    <input type="number" class="form-control" id="meta_pedidos_obj" required>
+                </div>
+                <div class="mb-3">
+                    <label for="tempo_entrega_setor_obj" class="form-label">Tempo de Entrega por Setor (horas)</label>
+                    <input type="number" class="form-control" id="tempo_entrega_setor_obj">
+                </div>
+                <div class="mb-3">
+                    <label for="tempo_final_embalar_obj" class="form-label">Tempo Final para Embalar (horas)</label>
+                    <input type="number" class="form-control" id="tempo_final_embalar_obj">
+                </div>
+                <button type="submit" class="btn btn-success w-100">Salvar Objetivo de Produtividade</button>
+                <button type="button" class="btn btn-secondary w-100 mt-2" id="back-to-selector2">Voltar</button>
+                <p id="status-objetivo-prod" class="mt-2 text-center text-white"></p>
+            </form>
+
+            <hr class="border-secondary my-4">
+            
+            <!-- Lista de Objetivos Pendentes (visível para todos) -->
+            <h5 class="text-white">Objetivos Pendentes</h5>
+            <div id="lista-objetivos-pendentes" class="mt-3">
+                <p class="text-white-50">Nenhum objetivo pendente.</p>
+            </div>
+            
+            <h5 class="text-white mt-4">Objetivos Concluídos</h5>
+            <div id="lista-objetivos-concluidos" class="mt-3">
+                 <p class="text-white-50">Nenhum objetivo concluído.</p>
+            </div>
         </div>
         <div class="tab-pane fade" id="almoxarifado" role="tabpanel" aria-labelledby="almoxarifado-tab">
             <h5 class="text-white">Conteúdo do Módulo de Almoxarifado</h5>
@@ -188,10 +290,6 @@
                   <option value="alta">Alta</option>
                 </select>
               </div>
-            </div>
-            <div class="mb-3">
-              <label for="descricao" class="form-label">Descrição (opcional)</label>
-              <textarea class="form-control" id="descricao" rows="3"></textarea>
             </div>
             <div class="mb-3 form-check">
               <input type="checkbox" class="form-check-input" id="notificar">
@@ -288,6 +386,9 @@
     </button>
   </div>
   
+  <!-- Modal de Notificação -->
+  <div id="notification-banner" class="notification-banner"></div>
+
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
   <!-- Firebase Scripts -->
@@ -309,14 +410,24 @@
 
     function el(sel) { return document.querySelector(sel); }
     const switchAccountBtn = el('#switch-account-btn');
+    const notificationBanner = el('#notification-banner');
 
     let tarefas = [];
     let osList = [];
+    let objetivos = [];
     
     function formatDate(timestamp) {
       if (!timestamp) return '';
       const d = timestamp.toDate();
       return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+    }
+
+    function showNotification(message) {
+        notificationBanner.textContent = message;
+        notificationBanner.style.display = 'block';
+        setTimeout(() => {
+            notificationBanner.style.display = 'none';
+        }, 5000); // Esconde a notificação após 5 segundos
     }
 
     function renderTasksTable(tbodySel, list) {
@@ -379,6 +490,67 @@
             tbody.appendChild(tr);
         });
     }
+    
+    function renderObjetivos(list) {
+        const pendentes = el('#lista-objetivos-pendentes');
+        const concluidos = el('#lista-objetivos-concluidos');
+        pendentes.innerHTML = '';
+        concluidos.innerHTML = '';
+
+        const objetivosPendentes = list.filter(obj => !obj.concluido);
+        const objetivosConcluidos = list.filter(obj => obj.concluido);
+
+        if (objetivosPendentes.length === 0) {
+            pendentes.innerHTML = '<p class="text-white-50">Nenhum objetivo pendente.</p>';
+        } else {
+            objetivosPendentes.forEach(obj => {
+                const div = document.createElement('div');
+                div.className = 'objetivo-item';
+                div.innerHTML = `
+                    <h6>${obj.tipo === 'os' ? 'Objetivo de O.S.' : 'Objetivo de Produtividade'}</h6>
+                    ${obj.tipo === 'os' ? `
+                        <p><strong>O.S.:</strong> ${obj.numero_os}</p>
+                        <p><strong>Cliente:</strong> ${obj.cliente}</p>
+                        <p><strong>Entrega Setor:</strong> ${obj.data_entrega_setor ? formatDate(obj.data_entrega_setor) : 'N/A'}</p>
+                        <p><strong>Finalizado:</strong> ${obj.data_final_embalar ? formatDate(obj.data_final_embalar) : 'N/A'}</p>
+                    ` : `
+                        <p><strong>Setores:</strong> ${obj.setores_envolvidos}</p>
+                        <p><strong>Meta de Pedidos:</strong> ${obj.meta_pedidos}</p>
+                        <p><strong>Tempo/Setor:</strong> ${obj.tempo_entrega_setor}h</p>
+                        <p><strong>Tempo Final:</strong> ${obj.tempo_final_embalar}h</p>
+                    `}
+                    <button class="btn btn-outline-success btn-sm mt-2" data-id="${obj.id}" data-action="concluir-objetivo">
+                        <i class="bi bi-check-circle"></i> Marcar como Concluído
+                    </button>
+                `;
+                pendentes.appendChild(div);
+            });
+        }
+        
+        if (objetivosConcluidos.length === 0) {
+            concluidos.innerHTML = '<p class="text-white-50">Nenhum objetivo concluído.</p>';
+        } else {
+            objetivosConcluidos.forEach(obj => {
+                const div = document.createElement('div');
+                div.className = 'objetivo-item concluido';
+                div.innerHTML = `
+                    <h6>${obj.tipo === 'os' ? 'Objetivo de O.S.' : 'Objetivo de Produtividade'}</h6>
+                    ${obj.tipo === 'os' ? `
+                        <p><strong>O.S.:</strong> ${obj.numero_os}</p>
+                        <p><strong>Cliente:</strong> ${obj.cliente}</p>
+                    ` : `
+                        <p><strong>Setores:</strong> ${obj.setores_envolvidos}</p>
+                        <p><strong>Meta de Pedidos:</strong> ${obj.meta_pedidos}</p>
+                    `}
+                    <p class="mt-2 text-success"><i class="bi bi-check-circle-fill"></i> Concluído em ${formatDate(obj.data_conclusao)}</p>
+                    <button class="btn btn-outline-secondary btn-sm" data-id="${obj.id}" data-action="reabrir-objetivo">
+                        <i class="bi bi-arrow-counterclockwise"></i> Reabrir
+                    </button>
+                `;
+                concluidos.appendChild(div);
+            });
+        }
+    }
 
     function render() {
         const qTarefas = el('#buscar-tarefas').value.trim().toLowerCase();
@@ -391,6 +563,7 @@
         renderTasksTable('#lista-tarefas', pendentesTarefas);
         renderTasksTable('#lista-tarefas-concluidas', concluidas);
         renderOSTable('#lista-os', osFiltradas);
+        renderObjetivos(objetivos);
     }
 
     function setupListeners() {
@@ -403,6 +576,12 @@
         onSnapshot(query(collection(db, `artifacts/${appId}/users/${userId}/os`)), (snapshot) => {
             const docs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             osList = docs;
+            render();
+        });
+        
+        onSnapshot(query(collection(db, `artifacts/${appId}/public/data/objetivos`)), (snapshot) => {
+            const docs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            objetivos = docs.sort((a, b) => b.data_criacao.toMillis() - a.data_criacao.toMillis());
             render();
         });
     }
@@ -430,6 +609,73 @@
     async function deleteOS(id) {
         await deleteDoc(doc(db, `artifacts/${appId}/users/${userId}/os`, id));
     }
+    
+    async function createObjetivo(payload) {
+        await addDoc(collection(db, `artifacts/${appId}/public/data/objetivos`), { ...payload, data_criacao: serverTimestamp(), concluido: false });
+    }
+    
+    async function updateObjetivo(id, payload) {
+        await setDoc(doc(db, `artifacts/${appId}/public/data/objetivos`, id), payload, { merge: true });
+    }
+    
+    el('#btn-objetivo-os').addEventListener('click', () => {
+        el('#objetivo-selector').classList.add('d-none');
+        el('#form-objetivo-os').classList.remove('d-none');
+    });
+
+    el('#btn-objetivo-produtividade').addEventListener('click', () => {
+        el('#objetivo-selector').classList.add('d-none');
+        el('#form-objetivo-produtividade').classList.remove('d-none');
+    });
+
+    el('#back-to-selector').addEventListener('click', () => {
+        el('#objetivo-selector').classList.remove('d-none');
+        el('#form-objetivo-os').classList.add('d-none');
+        el('#form-objetivo-os').reset();
+    });
+    
+    el('#back-to-selector2').addEventListener('click', () => {
+        el('#objetivo-selector').classList.remove('d-none');
+        el('#form-objetivo-produtividade').classList.add('d-none');
+        el('#form-objetivo-produtividade').reset();
+    });
+
+    el('#form-objetivo-os').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const payload = {
+            tipo: 'os',
+            numero_os: el('#numero_os_obj').value.trim(),
+            cliente: el('#cliente_obj').value.trim(),
+            data_entrega_setor: el('#data_entrega_setor_obj').value ? new Date(el('#data_entrega_setor_obj').value) : null,
+            data_final_embalar: el('#data_final_embalar_obj').value ? new Date(el('#data_final_embalar_obj').value) : null
+        };
+        el('#status-objetivo-os').textContent = 'Salvando...';
+        await createObjetivo(payload);
+        el('#status-objetivo-os').textContent = 'Objetivo de O.S. salvo e visível para todos!';
+        showNotification('Novo Objetivo de O.S. Criado!');
+        e.target.reset();
+        el('#objetivo-selector').classList.remove('d-none');
+        el('#form-objetivo-os').classList.add('d-none');
+    });
+
+    el('#form-objetivo-produtividade').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const payload = {
+            tipo: 'produtividade',
+            setores_envolvidos: el('#setores_envolvidos_obj').value.trim(),
+            meta_pedidos: Number(el('#meta_pedidos_obj').value),
+            tempo_entrega_setor: Number(el('#tempo_entrega_setor_obj').value),
+            tempo_final_embalar: Number(el('#tempo_final_embalar_obj').value)
+        };
+        el('#status-objetivo-prod').textContent = 'Salvando...';
+        await createObjetivo(payload);
+        el('#status-objetivo-prod').textContent = 'Objetivo de Produtividade salvo e visível para todos!';
+        showNotification('Novo Objetivo de Produtividade Criado!');
+        e.target.reset();
+        el('#objetivo-selector').classList.remove('d-none');
+        el('#form-objetivo-produtividade').classList.add('d-none');
+    });
+
 
     el('#task-form').addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -472,6 +718,12 @@
             if (t) {
                 await updateTask(id, { concluida: !t.concluida });
             }
+        } else if (action === 'concluir-objetivo') {
+            await updateObjetivo(id, { concluido: true, data_conclusao: serverTimestamp() });
+            showNotification('Objetivo concluído! Bom trabalho!');
+        } else if (action === 'reabrir-objetivo') {
+            await updateObjetivo(id, { concluido: false, data_conclusao: null });
+            showNotification('Objetivo reaberto!');
         } else if (action === 'editar-task') {
             const t = tarefas.find(x => x.id === id);
             if (!t) return;
@@ -568,3 +820,24 @@
   </script>
 </body>
 </html>
+```
+eof
+
+---
+
+### Próximos Passos
+
+Para que você possa testar essa nova funcionalidade e continuar nosso trabalho, aqui estão os comandos Git para atualizar o seu projeto:
+
+1.  **Adicionar as alterações:**
+    ```shell
+    git add .
+    ```
+2.  **Confirmar as mudanças com uma mensagem clara:**
+    ```shell
+    git commit -m "Funcionalidade de Objetivos implementada na página principal."
+    ```
+3.  **Enviar as alterações para o repositório remoto:**
+    ```shell
+    git push
+    
