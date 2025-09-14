@@ -122,9 +122,6 @@
             <button class="nav-link" id="tarefas-tab" data-bs-toggle="tab" data-bs-target="#tarefas" type="button" role="tab" aria-controls="tarefas" aria-selected="false">Tarefas</button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link" id="nova-tarefa-tab" data-bs-toggle="tab" data-bs-target="#nova-tarefa" type="button" role="tab" aria-controls="nova-tarefa" aria-selected="false">Nova Tarefa</button>
-        </li>
-        <li class="nav-item" role="presentation">
             <button class="nav-link" id="ordem-servico-tab" data-bs-toggle="tab" data-bs-target="#ordem-servico" type="button" role="tab" aria-controls="ordem-servico" aria-selected="false">O.S</button>
         </li>
       </ul>
@@ -180,6 +177,40 @@
             <p>Acompanhamento dos pedidos para envio.</p>
         </div>
         <div class="tab-pane fade" id="tarefas" role="tabpanel" aria-labelledby="tarefas-tab">
+          <form id="task-form" class="mb-3">
+            <div class="mb-3">
+              <label for="titulo" class="form-label">Título da Tarefa</label>
+              <input type="text" class="form-control" id="titulo" required>
+            </div>
+            <div class="mb-3">
+              <label for="quando" class="form-label">Quando</label>
+              <input type="datetime-local" class="form-control" id="quando">
+            </div>
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="antecedencia" class="form-label">Notificar com (minutos)</label>
+                <input type="number" class="form-control" id="antecedencia" value="0">
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="prioridade" class="form-label">Prioridade</label>
+                <select class="form-select" id="prioridade">
+                  <option value="baixa">Baixa</option>
+                  <option value="media" selected>Média</option>
+                  <option value="alta">Alta</option>
+                </select>
+              </div>
+            </div>
+            <div class="mb-3">
+              <label for="descricao" class="form-label">Descrição (opcional)</label>
+              <textarea class="form-control" id="descricao" rows="3"></textarea>
+            </div>
+            <div class="mb-3 form-check">
+              <input type="checkbox" class="form-check-input" id="notificar">
+              <label class="form-check-label" for="notificar">Habilitar Notificação</label>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Salvar Tarefa</button>
+            <p id="status-area-task" class="mt-2 text-center text-white"></p>
+          </form>
           <div class="input-group mb-3">
             <span class="input-group-text bg-dark border-secondary text-white"><i class="bi bi-search"></i></span>
             <input type="text" class="form-control" id="buscar-tarefas" placeholder="Buscar tarefas...">
@@ -216,42 +247,6 @@
               </tbody>
             </table>
           </div>
-        </div>
-        <div class="tab-pane fade" id="nova-tarefa" role="tabpanel" aria-labelledby="nova-tarefa-tab">
-          <form id="task-form">
-            <div class="mb-3">
-              <label for="titulo" class="form-label">Título da Tarefa</label>
-              <input type="text" class="form-control" id="titulo" required>
-            </div>
-            <div class="mb-3">
-              <label for="quando" class="form-label">Quando</label>
-              <input type="datetime-local" class="form-control" id="quando">
-            </div>
-            <div class="row">
-              <div class="col-md-6 mb-3">
-                <label for="antecedencia" class="form-label">Notificar com (minutos)</label>
-                <input type="number" class="form-control" id="antecedencia" value="0">
-              </div>
-              <div class="col-md-6 mb-3">
-                <label for="prioridade" class="form-label">Prioridade</label>
-                <select class="form-select" id="prioridade">
-                  <option value="baixa">Baixa</option>
-                  <option value="media" selected>Média</option>
-                  <option value="alta">Alta</option>
-                </select>
-              </div>
-            </div>
-            <div class="mb-3">
-              <label for="descricao" class="form-label">Descrição (opcional)</label>
-              <textarea class="form-control" id="descricao" rows="3"></textarea>
-            </div>
-            <div class="mb-3 form-check">
-              <input type="checkbox" class="form-check-input" id="notificar">
-              <label class="form-check-label" for="notificar">Habilitar Notificação</label>
-            </div>
-            <button type="submit" class="btn btn-primary w-100">Salvar Tarefa</button>
-            <p id="status-area-task" class="mt-2 text-center text-white"></p>
-          </form>
         </div>
         <div class="tab-pane fade" id="ordem-servico" role="tabpanel" aria-labelledby="ordem-servico-tab">
             <div class="input-group mb-3">
@@ -311,6 +306,8 @@
   const API_TASKS = `${API_URL}/api/tasks`;
   const API_OS = `${API_URL}/api/os`;
   const API_ALMOXARIFADO = `${API_URL}/api/almoxarifado`;
+  
+  const ADMIN_PASSWORD = 'M@Ria090123';
 
   let tarefas = [];
   let osList = [];
@@ -605,7 +602,7 @@
     } else if(action === 'editar-task'){
       const t = tarefas.find(x=>String(x.id) === String(id));
       if(!t) return;
-      el('#nova-tarefa-tab').click();
+      el('#tarefas-tab').click(); 
       el('#titulo').value = t.titulo;
       const dt = new Date(t.quando);
       const pad = n=>String(n).padStart(2,'0');
@@ -650,7 +647,7 @@
     } else if(action === 'editar-os'){
       const os = osList.find(x => String(x.id) === String(id));
       if (!os) return;
-      el('#nova-os-tab').click();
+      el('#ordem-servico-tab').click(); 
       el('#numero_os').value = os.numero_os;
       el('#cliente').value = os.cliente;
       el('#tecnico').value = os.tecnico;
@@ -690,6 +687,11 @@
 
   // exportar / limpar
   el('#exportar').addEventListener('click', ()=>{
+    const passwordAttempt = prompt('Digite a senha para exportar:');
+    if (passwordAttempt !== ADMIN_PASSWORD) {
+        alert('Senha incorreta.');
+        return;
+    }
     const data = { tarefas, os: osList, almoxarifado: almoxarifadoList };
     const blob = new Blob([JSON.stringify(data, null, 2)], { type:'application/json' });
     const a = document.createElement('a');
@@ -699,6 +701,11 @@
   });
 
   el('#apagarTudo').addEventListener('click', async ()=>{
+    const passwordAttempt = prompt('Digite a senha para apagar TUDO:');
+    if (passwordAttempt !== ADMIN_PASSWORD) {
+        alert('Senha incorreta.');
+        return;
+    }
     if(!confirm('Apagar todos os dados do servidor? Esta ação é irreversível.')) return;
     for(const t of tarefas){ await deleteTask(t.id); }
     for(const os of osList){ await deleteOS(os.id); }
