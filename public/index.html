@@ -283,8 +283,8 @@
   </div>
   
   <div class="text-center-btn">
-    <button id="logout-btn" class="btn btn-outline-danger w-50">
-        <i class="bi bi-box-arrow-right"></i> Sair
+    <button id="switch-account-btn" class="btn btn-outline-danger w-50">
+        <i class="bi bi-person-fill-gear"></i> Trocar de Conta
     </button>
   </div>
   
@@ -308,7 +308,7 @@
     let userId = null;
 
     function el(sel) { return document.querySelector(sel); }
-    const logoutBtn = el('#logout-btn');
+    const switchAccountBtn = el('#switch-account-btn');
 
     let tarefas = [];
     let osList = [];
@@ -537,7 +537,7 @@
     el('#buscar-tarefas').addEventListener('input', render);
     el('#buscar-os').addEventListener('input', render);
     
-    logoutBtn.addEventListener('click', function() {
+    switchAccountBtn.addEventListener('click', function() {
         sessionStorage.clear();
         window.location.href = 'login.html';
     });
@@ -555,7 +555,6 @@
         onAuthStateChanged(auth, (user) => {
           if (user) {
             userId = user.uid;
-            // AQUI O CÓDIGO PARA MOSTRAR O ID FOI REMOVIDO PARA EVITAR POLUIÇÃO VISUAL.
             setupListeners();
           } else {
             console.log("Nenhum usuário logado.");

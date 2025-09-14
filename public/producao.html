@@ -93,8 +93,8 @@
         </div>
     </div>
     <div class="text-center-btn">
-      <button id="logout-btn" class="btn btn-outline-danger w-50">
-          <i class="bi bi-box-arrow-right"></i> Sair
+      <button id="switch-account-btn" class="btn btn-outline-danger w-50">
+          <i class="bi bi-person-fill-gear"></i> Trocar de Conta
       </button>
     </div>
 
@@ -115,9 +115,9 @@
         const auth = getAuth(app);
         let userId = null;
 
-        const logoutBtn = document.getElementById('logout-btn');
+        const switchAccountBtn = document.getElementById('switch-account-btn');
 
-        logoutBtn.addEventListener('click', function() {
+        switchAccountBtn.addEventListener('click', function() {
             sessionStorage.clear();
             window.location.href = 'login.html';
         });

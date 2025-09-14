@@ -86,8 +86,8 @@
         </div>
     </div>
     <div class="text-center-btn">
-      <button id="logout-btn" class="btn btn-outline-danger w-50">
-          <i class="bi bi-box-arrow-right"></i> Sair
+      <button id="switch-account-btn" class="btn btn-outline-danger w-50">
+          <i class="bi bi-person-fill-gear"></i> Trocar de Conta
       </button>
     </div>
 
@@ -108,9 +108,9 @@
         const auth = getAuth(app);
         let userId = null;
 
-        const logoutBtn = document.getElementById('logout-btn');
+        const switchAccountBtn = document.getElementById('switch-account-btn');
 
-        logoutBtn.addEventListener('click', function() {
+        switchAccountBtn.addEventListener('click', function() {
             sessionStorage.clear();
             window.location.href = 'login.html';
         });
@@ -147,7 +147,7 @@ eof
 
 ### Comandos Git para Atualizar
 
-Para você aplicar essas mudanças e garantir que tudo esteja alinhado com o seu repositório, use os seguintes comandos:
+Para você aplicar essas mudanças e garantir que tudo esteja alinhado, use os seguintes comandos:
 
 1.  **Adicionar todas as alterações:**
     ```shell
@@ -156,7 +156,7 @@ Para você aplicar essas mudanças e garantir que tudo esteja alinhado com o seu
 
 2.  **Confirmar as mudanças com uma mensagem descritiva:**
     ```shell
-    git commit -m "Botão de saída movido para o rodapé e logo do cabeçalho ampliado em todas as páginas."
+    git commit -m "Botão 'Trocar de Conta' implementado no rodapé para deslogar de forma segura."
     ```
 
 3.  **Enviar as alterações para o seu repositório:**
