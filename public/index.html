@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Grupo ST Comunicaçao Integrada</title>
   
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link href="[https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css](https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css)" rel="stylesheet">
+  <link rel="stylesheet" href="[https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css](https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css)">
   
   <script>
     const userRole = sessionStorage.getItem('userRole');
@@ -389,23 +389,22 @@
   <!-- Modal de Notificação -->
   <div id="notification-banner" class="notification-banner"></div>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="[https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js](https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js)"></script>
 
   <!-- Firebase Scripts -->
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, doc, addDoc, setDoc, deleteDoc, onSnapshot, collection, query, where, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-    import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { initializeApp } from "[https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js](https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js)";
+    import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "[https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js](https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js)";
+    import { getFirestore, doc, addDoc, setDoc, deleteDoc, onSnapshot, collection, query, where, serverTimestamp } from "[https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js](https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js)";
+    import { setLogLevel } from "[https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js](https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js)";
     
     setLogLevel('debug');
     const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
     const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
     const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const auth = getAuth(app);
+    let db;
+    let auth;
     let userId = null;
 
     function el(sel) { return document.querySelector(sel); }
@@ -552,6 +551,7 @@
     }
 
     function render() {
+        console.log("Renderizando UI...");
         const qTarefas = el('#buscar-tarefas').value.trim().toLowerCase();
         const qOS = el('#buscar-os').value.trim().toLowerCase();
 
@@ -563,24 +563,29 @@
         renderTasksTable('#lista-tarefas-concluidas', concluidas);
         renderOSTable('#lista-os', osFiltradas);
         renderObjetivos(objetivos);
+        console.log("Renderização concluída.");
     }
 
     function setupListeners() {
+        console.log("Configurando listeners de dados...");
         onSnapshot(query(collection(db, `artifacts/${appId}/users/${userId}/tarefas`)), (snapshot) => {
             const docs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             tarefas = docs.sort((a, b) => (b.quando?.toMillis() || 0) - (a.quando?.toMillis() || 0));
+            console.log("Tarefas atualizadas:", tarefas.length, "documentos");
             render();
         });
 
         onSnapshot(query(collection(db, `artifacts/${appId}/users/${userId}/os`)), (snapshot) => {
             const docs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             osList = docs;
+            console.log("O.S. atualizadas:", osList.length, "documentos");
             render();
         });
         
         onSnapshot(query(collection(db, `artifacts/${appId}/public/data/objetivos`)), (snapshot) => {
             const docs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             objetivos = docs.sort((a, b) => b.data_criacao.toMillis() - a.data_criacao.toMillis());
+            console.log("Objetivos atualizados:", objetivos.length, "documentos");
             render();
         });
 
@@ -589,19 +594,36 @@
             if (!btn) return;
             const id = btn.getAttribute('data-id');
             const action = btn.getAttribute('data-action');
+            console.log(`Botão de ação clicado: ${action}, ID: ${id}`);
             
             if (action === 'toggle-concluida') {
                 const t = tarefas.find(x => x.id === id);
                 if (t) {
-                    await updateTask(id, { concluida: !t.concluida });
+                    try {
+                        await updateTask(id, { concluida: !t.concluida });
+                        console.log("Tarefa atualizada com sucesso.");
+                    } catch (error) {
+                        console.error("Erro ao atualizar tarefa:", error);
+                    }
                 }
             } else if (action === 'concluir-objetivo') {
-                await updateObjetivo(id, { concluido: true, data_conclusao: serverTimestamp() });
-                showNotification('Objetivo concluído! Bom trabalho!');
+                try {
+                    await updateObjetivo(id, { concluido: true, data_conclusao: serverTimestamp() });
+                    showNotification('Objetivo concluído! Bom trabalho!');
+                    console.log("Objetivo concluído com sucesso.");
+                } catch (error) {
+                    console.error("Erro ao concluir objetivo:", error);
+                }
             } else if (action === 'reabrir-objetivo') {
-                await updateObjetivo(id, { concluido: false, data_conclusao: null });
-                showNotification('Objetivo reaberto!');
+                try {
+                    await updateObjetivo(id, { concluido: false, data_conclusao: null });
+                    showNotification('Objetivo reaberto!');
+                    console.log("Objetivo reaberto com sucesso.");
+                } catch (error) {
+                    console.error("Erro ao reabrir objetivo:", error);
+                }
             } else if (action === 'editar-task') {
+                console.log("Entrando no modo de edição de tarefa.");
                 const t = tarefas.find(x => x.id === id);
                 if (!t) return;
                 el('#tarefas-tab').click(); 
@@ -609,7 +631,6 @@
                 el('#quando').value = t.quando?.toDate().toISOString().slice(0, 16);
                 el('#antecedencia').value = t.antecedencia || 0;
                 el('#prioridade').value = t.prioridade || 'media';
-                el('#descricao').value = t.descricao || '';
                 el('#notificar').checked = !!t.notificar;
 
                 const form = el('#task-form');
@@ -617,22 +638,34 @@
                 
                 form.onsubmit = async (ev) => {
                     ev.preventDefault();
+                    console.log("Tentando salvar tarefa editada.");
                     const updatedPayload = {
                         titulo: el('#titulo').value.trim(),
                         quando: el('#quando').value ? new Date(el('#quando').value) : null,
                         antecedencia: Number(el('#antecedencia').value),
                         prioridade: el('#prioridade').value,
-                        descricao: el('#descricao').value.trim(),
                         concluida: t.concluida
                     };
-                    await updateTask(id, updatedPayload);
-                    el('#status-area-task').textContent = 'Atualizado.';
+                    try {
+                        await updateTask(id, updatedPayload);
+                        el('#status-area-task').textContent = 'Atualizado.';
+                        console.log("Tarefa editada salva com sucesso.");
+                    } catch (error) {
+                        el('#status-area-task').textContent = 'Erro ao atualizar.';
+                        console.error("Erro ao salvar tarefa editada:", error);
+                    }
                     form.onsubmit = originalSubmitHandler; 
                     form.reset();
                 };
             } else if (action === 'excluir-task') {
-                await deleteTask(id);
+                try {
+                    await deleteTask(id);
+                    console.log("Tarefa excluída com sucesso.");
+                } catch (error) {
+                    console.error("Erro ao excluir tarefa:", error);
+                }
             } else if (action === 'editar-os') {
+                console.log("Entrando no modo de edição de O.S.");
                 const os = osList.find(x => x.id === id);
                 if (!os) return;
                 el('#ordem-servico-tab').click(); 
@@ -646,6 +679,7 @@
                 
                 form.onsubmit = async (ev) => {
                     ev.preventDefault();
+                    console.log("Tentando salvar O.S. editada.");
                     const updatedPayload = {
                         numero_os: el('#numero_os').value.trim(),
                         cliente: el('#cliente').value.trim(),
@@ -653,18 +687,122 @@
                         descricao: el('#descricao_os').value.trim(),
                         status: os.status 
                     };
-                    await updateOS(id, updatedPayload);
-                    el('#status-area-os').textContent = 'O.S. atualizada.';
+                    try {
+                        await updateOS(id, updatedPayload);
+                        el('#status-area-os').textContent = 'O.S. atualizada.';
+                        console.log("O.S. editada salva com sucesso.");
+                    } catch (error) {
+                        el('#status-area-os').textContent = 'Erro ao atualizar O.S.';
+                        console.error("Erro ao salvar O.S. editada:", error);
+                    }
                     form.onsubmit = originalSubmitHandler;
                     form.reset();
                 };
             } else if (action === 'excluir-os') {
-                await deleteOS(id);
+                try {
+                    await deleteOS(id);
+                    console.log("O.S. excluída com sucesso.");
+                } catch (error) {
+                    console.error("Erro ao excluir O.S.:", error);
+                }
             }
         });
 
         el('#buscar-tarefas').addEventListener('input', render);
         el('#buscar-os').addEventListener('input', render);
+        
+        el('#task-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            console.log("Formulário de tarefa submetido.");
+            const payload = {
+                titulo: el('#titulo').value.trim(),
+                quando: el('#quando').value ? new Date(el('#quando').value) : null,
+                antecedencia: Number(el('#antecedencia').value),
+                prioridade: el('#prioridade').value,
+                notificar: el('#notificar').checked
+            };
+            el('#status-area-task').textContent = 'Salvando...';
+            try {
+                await createTask(payload);
+                el('#status-area-task').textContent = 'Tarefa salva.';
+                console.log("Nova tarefa criada com sucesso.");
+            } catch (error) {
+                el('#status-area-task').textContent = 'Erro ao salvar.';
+                console.error("Erro ao criar nova tarefa:", error);
+            }
+            e.target.reset();
+        });
+        
+        el('#os-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            console.log("Formulário de O.S. submetido.");
+            const payload = {
+                numero_os: el('#numero_os').value.trim(),
+                cliente: el('#cliente').value.trim(),
+                tecnico: el('#tecnico').value.trim(),
+                descricao: el('#descricao_os').value.trim()
+            };
+            el('#status-area-os').textContent = 'Salvando O.S...';
+            try {
+                await createOS(payload);
+                el('#status-area-os').textContent = 'O.S. salva.';
+                console.log("Nova O.S. criada com sucesso.");
+            } catch (error) {
+                el('#status-area-os').textContent = 'Erro ao salvar O.S.';
+                console.error("Erro ao criar nova O.S.:", error);
+            }
+            e.target.reset();
+        });
+        
+        el('#form-objetivo-os').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            console.log("Formulário de objetivo de O.S. submetido.");
+            const payload = {
+                tipo: 'os',
+                numero_os: el('#numero_os_obj').value.trim(),
+                cliente: el('#cliente_obj').value.trim(),
+                data_entrega_setor: el('#data_entrega_setor_obj').value ? new Date(el('#data_entrega_setor_obj').value) : null,
+                data_final_embalar: el('#data_final_embalar_obj').value ? new Date(el('#data_final_embalar_obj').value) : null
+            };
+            el('#status-objetivo-os').textContent = 'Salvando...';
+            try {
+                await createObjetivo(payload);
+                el('#status-objetivo-os').textContent = 'Objetivo de O.S. salvo e visível para todos!';
+                showNotification('Novo Objetivo de O.S. Criado!');
+                console.log("Novo objetivo de O.S. criado com sucesso.");
+            } catch (error) {
+                el('#status-objetivo-os').textContent = 'Erro ao salvar.';
+                console.error("Erro ao criar novo objetivo de O.S.:", error);
+            }
+            e.target.reset();
+            el('#objetivo-selector').classList.remove('d-none');
+            el('#form-objetivo-os').classList.add('d-none');
+        });
+        
+        el('#form-objetivo-produtividade').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            console.log("Formulário de objetivo de produtividade submetido.");
+            const payload = {
+                tipo: 'produtividade',
+                setores_envolvidos: el('#setores_envolvidos_obj').value.trim(),
+                meta_pedidos: Number(el('#meta_pedidos_obj').value),
+                tempo_entrega_setor: Number(el('#tempo_entrega_setor_obj').value),
+                tempo_final_embalar: Number(el('#tempo_final_embalar_obj').value)
+            };
+            el('#status-objetivo-prod').textContent = 'Salvando...';
+            try {
+                await createObjetivo(payload);
+                el('#status-objetivo-prod').textContent = 'Objetivo de Produtividade salvo e visível para todos!';
+                showNotification('Novo Objetivo de Produtividade Criado!');
+                console.log("Novo objetivo de produtividade criado com sucesso.");
+            } catch (error) {
+                el('#status-objetivo-prod').textContent = 'Erro ao salvar.';
+                console.error("Erro ao criar novo objetivo de produtividade:", error);
+            }
+            e.target.reset();
+            el('#objetivo-selector').classList.remove('d-none');
+            el('#form-objetivo-produtividade').classList.add('d-none');
+        });
     }
 
     async function createTask(payload) {
@@ -698,148 +836,63 @@
     async function updateObjetivo(id, payload) {
         await setDoc(doc(db, `artifacts/${appId}/public/data/objetivos`, id), payload, { merge: true });
     }
-
+    
     document.addEventListener('DOMContentLoaded', () => {
-      // Listener para os botões que não dependem do Firebase
+      console.log("DOM carregado. Iniciando aplicativo.");
+      
+      el('#switch-account-btn').addEventListener('click', function() {
+          console.log("Botão 'Trocar de Conta' clicado. Redirecionando...");
+          sessionStorage.clear();
+          window.location.href = 'login.html';
+      });
+
       el('#btn-objetivo-os').addEventListener('click', () => {
+          console.log("Botão 'Objetivo de O.S.' clicado.");
           el('#objetivo-selector').classList.add('d-none');
           el('#form-objetivo-os').classList.remove('d-none');
       });
 
       el('#btn-objetivo-produtividade').addEventListener('click', () => {
+          console.log("Botão 'Objetivo de Produtividade' clicado.");
           el('#objetivo-selector').classList.add('d-none');
           el('#form-objetivo-produtividade').classList.remove('d-none');
       });
-      
-      el('#switch-account-btn').addEventListener('click', function() {
-          sessionStorage.clear();
-          window.location.href = 'login.html';
-      });
 
       el('#back-to-selector').addEventListener('click', () => {
+          console.log("Botão 'Voltar' clicado (form O.S.).");
           el('#objetivo-selector').classList.remove('d-none');
           el('#form-objetivo-os').classList.add('d-none');
           el('#form-objetivo-os').reset();
       });
       
       el('#back-to-selector2').addEventListener('click', () => {
+          console.log("Botão 'Voltar' clicado (form Produtividade).");
           el('#objetivo-selector').classList.remove('d-none');
           el('#form-objetivo-produtividade').classList.add('d-none');
           el('#form-objetivo-produtividade').reset();
       });
 
-      el('#form-objetivo-os').addEventListener('submit', async (e) => {
-          e.preventDefault();
-          const payload = {
-              tipo: 'os',
-              numero_os: el('#numero_os_obj').value.trim(),
-              cliente: el('#cliente_obj').value.trim(),
-              data_entrega_setor: el('#data_entrega_setor_obj').value ? new Date(el('#data_entrega_setor_obj').value) : null,
-              data_final_embalar: el('#data_final_embalar_obj').value ? new Date(el('#data_final_embalar_obj').value) : null
-          };
-          el('#status-objetivo-os').textContent = 'Salvando...';
-          await createObjetivo(payload);
-          el('#status-objetivo-os').textContent = 'Objetivo de O.S. salvo e visível para todos!';
-          showNotification('Novo Objetivo de O.S. Criado!');
-          e.target.reset();
-          el('#objetivo-selector').classList.remove('d-none');
-          el('#form-objetivo-os').classList.add('d-none');
-      });
-
-      el('#form-objetivo-produtividade').addEventListener('submit', async (e) => {
-          e.preventDefault();
-          const payload = {
-              tipo: 'produtividade',
-              setores_envolvidos: el('#setores_envolvidos_obj').value.trim(),
-              meta_pedidos: Number(el('#meta_pedidos_obj').value),
-              tempo_entrega_setor: Number(el('#tempo_entrega_setor_obj').value),
-              tempo_final_embalar: Number(el('#tempo_final_embalar_obj').value)
-          };
-          el('#status-objetivo-prod').textContent = 'Salvando...';
-          await createObjetivo(payload);
-          el('#status-objetivo-prod').textContent = 'Objetivo de Produtividade salvo e visível para todos!';
-          showNotification('Novo Objetivo de Produtividade Criado!');
-          e.target.reset();
-          el('#objetivo-selector').classList.remove('d-none');
-          el('#form-objetivo-produtividade').classList.add('d-none');
-      });
-
-      el('#task-form').addEventListener('submit', async (e) => {
-          e.preventDefault();
-          const payload = {
-              titulo: el('#titulo').value.trim(),
-              quando: el('#quando').value ? new Date(el('#quando').value) : null,
-              antecedencia: Number(el('#antecedencia').value),
-              prioridade: el('#prioridade').value,
-              descricao: el('#descricao').value.trim(),
-              notificar: el('#notificar').checked
-          };
-          el('#status-area-task').textContent = 'Salvando...';
-          await createTask(payload);
-          el('#status-area-task').textContent = 'Tarefa salva.';
-          e.target.reset();
-      });
-
-      el('#os-form').addEventListener('submit', async (e) => {
-          e.preventDefault();
-          const payload = {
-              numero_os: el('#numero_os').value.trim(),
-              cliente: el('#cliente').value.trim(),
-              tecnico: el('#tecnico').value.trim(),
-              descricao: el('#descricao_os').value.trim()
-          };
-          el('#status-area-os').textContent = 'Salvando O.S...';
-          await createOS(payload);
-          el('#status-area-os').textContent = 'O.S. salva.';
-          e.target.reset();
-      });
-      
-      // Inicializar Firebase e listeners de dados
       (async () => {
           try {
+              console.log("Iniciando autenticação Firebase...");
+              const app = initializeApp(firebaseConfig);
+              db = getFirestore(app);
+              auth = getAuth(app);
               if (initialAuthToken) {
                   const userCredential = await signInWithCustomToken(auth, initialAuthToken);
                   userId = userCredential.user.uid;
+                  console.log("Autenticado com token customizado. User ID:", userId);
               } else {
                   const userCredential = await signInAnonymously(auth);
                   userId = userCredential.user.uid;
+                  console.log("Autenticado anonimamente. User ID:", userId);
               }
-              
-              onAuthStateChanged(auth, (user) => {
-                  if (user) {
-                      userId = user.uid;
-                      setupListeners();
-                  } else {
-                      console.log("Nenhum usuário logado.");
-                  }
-              });
-
+              setupListeners();
           } catch (error) {
-              console.error("Erro na autenticação:", error);
+              console.error("Erro fatal na inicialização do Firebase:", error);
           }
       })();
     });
   </script>
 </body>
 </html>
-```
-eof
-
-### O que mudou e por que isso vai funcionar?
-
-Eu separei a lógica do código em duas partes:
-
-1.  **Lógica dos Botões (`DOMContentLoaded`)**: A funcionalidade dos botões "Trocar de Conta" e dos botões do "Objetivo" agora é ativada assim que a página é carregada. Isso elimina qualquer dependência de tempo com a autenticação do Firebase.
-2.  **Lógica do Banco de Dados (`onAuthStateChanged`)**: As funções que interagem com o Firestore (`onSnapshot`, `addDoc`, etc.) só são ativadas depois que o usuário está autenticado e o ID dele está disponível.
-
-Isso cria uma estrutura mais robusta e garante que cada parte do seu código seja executada no momento certo.
-
-Depois de substituir o arquivo, por favor, siga estes passos:
-
-1.  **Limpe o cache do seu navegador:** Isso é **fundamental** para garantir que você não esteja vendo uma versão antiga da página.
-2.  **Use os comandos Git para publicar a mudança:**
-    ```bash
-    git add .
-    git commit -m "Refatoração: separada a lógica dos botões da autenticação do Firebase."
-    git push origin main
-    
