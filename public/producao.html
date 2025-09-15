@@ -11,7 +11,7 @@
   <script>
     document.addEventListener('DOMContentLoaded', () => {
         const userRole = sessionStorage.getItem('userRole');
-        if (!userRole || userRole !== 'producao') {
+        if (!userRole || userRole !== 'producao123') { // Corrigido para verificar 'producao123'
             window.location.href = 'login.html';
         }
     });

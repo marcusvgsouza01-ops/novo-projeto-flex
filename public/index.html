@@ -11,30 +11,15 @@
   <script>
     document.addEventListener('DOMContentLoaded', () => {
         const userRole = sessionStorage.getItem('userRole');
-        const validRoles = ['admin', 'pcp', 'almoxarifado', 'producao', 'expedicao'];
-
-        if (!userRole || !validRoles.includes(userRole)) {
+        if (!userRole || userRole !== 'adm123') { // Corrigido para verificar 'adm123'
             window.location.href = 'login.html';
-            return;
-        }
-
-        const tabMap = {
-            'admin': 'objetivos',
-            'pcp': 'pcp',
-            'almoxarifado': 'almoxarifado',
-            'producao': 'producao',
-            'expedicao': 'expedicao'
-        };
-
-        const targetTabId = tabMap[userRole];
-        if (targetTabId) {
-            const tabElement = document.getElementById(targetTabId + '-tab');
-            if (tabElement) {
-                const tab = new bootstrap.Tab(tabElement);
-                tab.show();
-            }
         }
     });
+
+    function logout() {
+        sessionStorage.removeItem('userRole');
+        window.location.href = 'login.html';
+    }
   </script>
 
   <style>
@@ -141,13 +126,16 @@
         <img src="/images/image_64f7fe.png" alt="Logo da Empresa" style="max-height: 120px;">
       </div>
       <h1 class="card-title text-center p-3">Grupo ST Comunicaçao Integrada</h1>
+      <div class="text-end mb-3">
+        <button onclick="logout()" class="btn btn-outline-danger btn-sm">Sair</button>
+      </div>
 
       <ul class="nav nav-tabs" id="myTab" role="tablist">
         <li class="nav-item" role="presentation">
             <a class="nav-link active" id="objetivos-tab" data-bs-toggle="tab" href="#objetivos" role="tab" aria-controls="objetivos" aria-selected="true">Objetivos</a>
         </li>
         <li class="nav-item" role="presentation">
-            <a class="nav-link" id="almoxarifado-tab" data-bs-toggle="tab" href="#almoxarifado" role="tab" aria-controls="almoxarifado" aria-selected="false">Almoxarifado</a>
+            <a class="nav-link" id="liberacoes-tab" data-bs-toggle="tab" href="#liberacoes" role="tab" aria-controls="liberacoes" aria-selected="false">Liberações de O.S</a>
         </li>
         <li class="nav-item" role="presentation">
             <a class="nav-link" id="pcp-tab" data-bs-toggle="tab" href="#pcp" role="tab" aria-controls="pcp" aria-selected="false">PCP</a>
@@ -156,13 +144,16 @@
             <a class="nav-link" id="producao-tab" data-bs-toggle="tab" href="#producao" role="tab" aria-controls="producao" aria-selected="false">Produção</a>
         </li>
         <li class="nav-item" role="presentation">
+            <a class="nav-link" id="almoxarifado-tab" data-bs-toggle="tab" href="#almoxarifado" role="tab" aria-controls="almoxarifado" aria-selected="false">Almoxarifado</a>
+        </li>
+        <li class="nav-item" role="presentation">
             <a class="nav-link" id="expedicao-tab" data-bs-toggle="tab" href="#expedicao" role="tab" aria-controls="expedicao" aria-selected="false">Expedição</a>
         </li>
         <li class="nav-item" role="presentation">
-            <a class="nav-link" id="tarefas-tab" data-bs-toggle="tab" href="#tarefas" role="tab" aria-controls="tarefas" aria-selected="false">Tarefas</a>
+            <a class="nav-link" id="requisicoes-tab" data-bs-toggle="tab" href="#requisicoes" role="tab" aria-controls="requisicoes" aria-selected="false">Requisições de Materiais</a>
         </li>
         <li class="nav-item" role="presentation">
-            <a class="nav-link" id="ordem-servico-tab" data-bs-toggle="tab" href="#ordem-servico" role="tab" aria-controls="ordem-servico" aria-selected="false">O.S</a>
+            <a class="nav-link" id="graficos-tab" data-bs-toggle="tab" href="#graficos" role="tab" aria-controls="graficos" aria-selected="false">Gráficos</a>
         </li>
       </ul>
 
@@ -171,9 +162,9 @@
             <h5 class="text-white">Conteúdo do Módulo de Objetivos</h5>
             <p>Acompanhamento dos objetivos do grupo.</p>
         </div>
-        <div class="tab-pane fade" id="almoxarifado" role="tabpanel" aria-labelledby="almoxarifado-tab">
-            <h5 class="text-white">Conteúdo do Módulo de Almoxarifado</h5>
-            <p>Gerenciamento de estoque e materiais.</p>
+        <div class="tab-pane fade" id="liberacoes" role="tabpanel" aria-labelledby="liberacoes-tab">
+            <h5 class="text-white">Conteúdo do Módulo de Liberações de O.S.</h5>
+            <p>Gerenciamento e liberação de ordens de serviço.</p>
         </div>
         <div class="tab-pane fade" id="pcp" role="tabpanel" aria-labelledby="pcp-tab">
             <h5 class="text-white">Conteúdo do Módulo de PCP</h5>
@@ -183,374 +174,26 @@
             <h5 class="text-white">Conteúdo do Módulo de Produção</h5>
             <p>Acompanhamento da produção em tempo real.</p>
         </div>
+        <div class="tab-pane fade" id="almoxarifado" role="tabpanel" aria-labelledby="almoxarifado-tab">
+            <h5 class="text-white">Conteúdo do Módulo de Almoxarifado</h5>
+            <p>Gerenciamento de estoque e materiais.</p>
+        </div>
         <div class="tab-pane fade" id="expedicao" role="tabpanel" aria-labelledby="expedicao-tab">
             <h5 class="text-white">Conteúdo do Módulo de Expedição</h5>
             <p>Acompanhamento dos pedidos para envio.</p>
         </div>
-        <div class="tab-pane fade" id="tarefas" role="tabpanel" aria-labelledby="tarefas-tab">
-          <form id="task-form" class="mb-3">
-            <div class="mb-3">
-              <label for="titulo" class="form-label">Título da Tarefa</label>
-              <input type="text" class="form-control" id="titulo" required>
-            </div>
-            <div class="mb-3">
-              <label for="quando" class="form-label">Quando</label>
-              <input type="datetime-local" class="form-control" id="quando">
-            </div>
-            <div class="row">
-              <div class="col-md-6 mb-3">
-                <label for="antecedencia" class="form-label">Notificar com (minutos)</label>
-                <input type="number" class="form-control" id="antecedencia" value="0">
-              </div>
-              <div class="col-md-6 mb-3">
-                <label for="prioridade" class="form-label">Prioridade</label>
-                <select class="form-select" id="prioridade">
-                  <option value="baixa">Baixa</option>
-                  <option value="media" selected>Média</option>
-                  <option value="alta">Alta</option>
-                </select>
-              </div>
-            </div>
-            <div class="mb-3 form-check">
-              <input type="checkbox" class="form-check-input" id="notificar">
-              <label class="form-check-label" for="notificar">Habilitar Notificação</label>
-            </div>
-            <button type="submit" class="btn btn-primary w-100">Salvar Tarefa</button>
-            <p id="status-area-task" class="mt-2 text-center text-white"></p>
-          </form>
-          <div class="input-group mb-3">
-            <span class="input-group-text bg-dark border-secondary text-white"><i class="bi bi-search"></i></span>
-            <input type="text" class="form-control" id="buscar-tarefas" placeholder="Buscar tarefas...">
-          </div>
-          <h5 class="text-white">Tarefas Pendentes</h5>
-          <div class="table-responsive">
-            <table class="table table-dark table-hover table-sm">
-              <thead>
-                <tr>
-                  <th>Título</th>
-                  <th>Quando</th>
-                  <th>Prioridade</th>
-                  <th>Ações</th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody id="lista-tarefas">
-              </tbody>
-            </table>
-          </div>
-          <h5 class="text-white mt-4">Tarefas Concluídas</h5>
-          <div class="table-responsive">
-            <table class="table table-dark table-hover table-sm">
-              <thead>
-                <tr>
-                  <th>Título</th>
-                  <th>Quando</th>
-                  <th>Prioridade</th>
-                  <th>Ações</th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody id="lista-tarefas-concluidas">
-              </tbody>
-            </table>
-          </div>
+        <div class="tab-pane fade" id="requisicoes" role="tabpanel" aria-labelledby="requisicoes-tab">
+            <h5 class="text-white">Conteúdo do Módulo de Requisições de Materiais</h5>
+            <p>Área para solicitar materiais ao almoxarifado.</p>
         </div>
-        <div class="tab-pane fade" id="ordem-servico" role="tabpanel" aria-labelledby="ordem-servico-tab">
-            <div class="input-group mb-3">
-                <span class="input-group-text bg-dark border-secondary text-white"><i class="bi bi-search"></i></span>
-                <input type="text" class="form-control" id="buscar-os" placeholder="Buscar O.S. por número...">
-            </div>
-            <form id="os-form" class="mb-3">
-                <div class="mb-3">
-                    <label for="numero_os" class="form-label">Número da O.S.</label>
-                    <input type="text" class="form-control" id="numero_os" required>
-                </div>
-                <div class="mb-3">
-                    <label for="cliente" class="form-label">Cliente</label>
-                    <input type="text" class="form-control" id="cliente" required>
-                </div>
-                <div class="mb-3">
-                    <label for="tecnico" class="form-label">Técnico</label>
-                    <input type="text" class="form-control" id="tecnico">
-                </div>
-                <div class="mb-3">
-                    <label for="descricao_os" class="form-label">Descrição</label>
-                    <textarea class="form-control" id="descricao_os" rows="3"></textarea>
-                </div>
-                <button type="submit" class="btn btn-primary w-100">Salvar O.S.</button>
-                <p id="status-area-os" class="mt-2 text-center text-white"></p>
-            </form>
-            <div class="table-responsive">
-              <table class="table table-dark table-hover table-sm">
-                <thead>
-                  <tr>
-                    <th>O.S.</th>
-                    <th>Cliente</th>
-                    <th>Técnico</th>
-                    <th>Status</th>
-                    <th>Ações</th>
-                  </tr>
-                </thead>
-                <tbody id="lista-os">
-                </tbody>
-              </table>
-            </div>
+        <div class="tab-pane fade" id="graficos" role="tabpanel" aria-labelledby="graficos-tab">
+            <h5 class="text-white">Conteúdo do Módulo de Gráficos</h5>
+            <p>Visualização de dados e performance.</p>
         </div>
       </div>
     </div>
   </div>
   
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
-  <!-- Firebase Scripts -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, doc, addDoc, setDoc, deleteDoc, onSnapshot, collection, query, where, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-    
-    const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-    const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
-    const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
-
-    let db;
-    let auth;
-    let userId = null;
-
-    function el(sel) { return document.querySelector(sel); }
-
-    let tarefas = [];
-    let osList = [];
-    
-    function formatDate(timestamp) {
-      if (!timestamp) return '';
-      const d = timestamp.toDate();
-      return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-    }
-
-    function renderTasksTable(tbodySel, list) {
-        const tbody = el(tbodySel);
-        tbody.innerHTML = '';
-        if (list.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="5" class="text-white text-center">Sem tarefas.</td></tr>';
-            return;
-        }
-        list.forEach(t => {
-            const tr = document.createElement('tr');
-            
-            let prioridadeBadgeClass = 'badge bg-secondary';
-            if (t.prioridade === 'baixa') {
-                prioridadeBadgeClass = 'badge badge-prioridade-baixa';
-            } else if (t.prioridade === 'media') {
-                prioridadeBadgeClass = 'badge badge-prioridade-media';
-            } else if (t.prioridade === 'alta') {
-                prioridadeBadgeClass = 'badge badge-prioridade-alta';
-            }
-            const concluidaClass = t.concluida ? 'concluida' : '';
-
-            tr.innerHTML = `
-                <td class="${concluidaClass}">${t.titulo}</td>
-                <td class="${concluidaClass}">${t.quando ? formatDate(t.quando) : 'N/A'}</td>
-                <td><span class="${prioridadeBadgeClass}">${t.prioridade}</span></td>
-                <td>
-                    <button class="btn btn-sm btn-link text-white text-decoration-none" data-id="${t.id}" data-action="toggle-concluida">
-                        ${t.concluida ? 'Reabrir' : 'Concluir'}
-                    </button>
-                </td>
-                <td>
-                    <button class="btn btn-sm btn-outline-secondary" data-id="${t.id}" data-action="editar-task"><i class="bi bi-pencil-square"></i></button>
-                    <button class="btn btn-sm btn-outline-danger" data-id="${t.id}" data-action="excluir-task"><i class="bi bi-trash3-fill"></i></button>
-                </td>
-            `;
-            tbody.appendChild(tr);
-        });
-    }
-
-    function renderOSTable(tbodySel, list) {
-        const tbody = el(tbodySel);
-        tbody.innerHTML = '';
-        if (list.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="5" class="text-white text-center">Sem O.S. Liberadas.</td></tr>';
-            return;
-        }
-        list.forEach(os => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td>${os.numero_os}</td>
-                <td>${os.cliente}</td>
-                <td>${os.tecnico || 'N/A'}</td>
-                <td>${os.status}</td>
-                <td>
-                    <button class="btn btn-sm btn-outline-secondary" data-id="${os.id}" data-action="editar-os"><i class="bi bi-pencil-square"></i></button>
-                    <button class="btn btn-sm btn-outline-danger" data-id="${os.id}" data-action="excluir-os"><i class="bi bi-trash3-fill"></i></button>
-                </td>
-            `;
-            tbody.appendChild(tr);
-        });
-    }
-
-    function render() {
-        const qTarefas = el('#buscar-tarefas').value.trim().toLowerCase();
-        const qOS = el('#buscar-os').value.trim().toLowerCase();
-
-        const pendentesTarefas = tarefas.filter(t => !t.concluida && (!qTarefas || t.titulo.toLowerCase().includes(qTarefas)));
-        const concluidas = tarefas.filter(t => t.concluida);
-        const osFiltradas = osList.filter(os => !qOS || os.numero_os.toLowerCase().includes(qOS));
-
-        renderTasksTable('#lista-tarefas', pendentesTarefas);
-        renderTasksTable('#lista-tarefas-concluidas', concluidas);
-        renderOSTable('#lista-os', osFiltradas);
-    }
-
-    function setupListeners() {
-        onSnapshot(query(collection(db, `artifacts/${appId}/users/${userId}/tarefas`)), (snapshot) => {
-            const docs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            tarefas = docs.sort((a, b) => (b.quando?.toMillis() || 0) - (a.quando?.toMillis() || 0));
-            render();
-        });
-
-        onSnapshot(query(collection(db, `artifacts/${appId}/users/${userId}/os`)), (snapshot) => {
-            const docs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            osList = docs;
-            render();
-        });
-
-        document.addEventListener('click', async (ev) => {
-            const btn = ev.target.closest('button[data-action]');
-            if (!btn) return;
-            const id = btn.getAttribute('data-id');
-            const action = btn.getAttribute('data-action');
-            
-            if (action === 'toggle-concluida') {
-                const t = tarefas.find(x => x.id === id);
-                if (t) {
-                    await updateTask(id, { concluida: !t.concluida });
-                }
-            } else if (action === 'editar-task') {
-                const t = tarefas.find(x => x.id === id);
-                if (!t) return;
-                el('#tarefas-tab').click(); 
-                el('#titulo').value = t.titulo;
-                el('#quando').value = t.quando?.toDate().toISOString().slice(0, 16);
-                el('#antecedencia').value = t.antecedencia || 0;
-                el('#prioridade').value = t.prioridade || 'media';
-                el('#notificar').checked = !!t.notificar;
-                const originalSubmitHandler = el('#task-form').onsubmit; 
-                el('#task-form').onsubmit = async (ev) => {
-                    ev.preventDefault();
-                    const updatedPayload = {
-                        titulo: el('#titulo').value.trim(),
-                        quando: el('#quando').value ? new Date(el('#quando').value) : null,
-                        antecedencia: Number(el('#antecedencia').value),
-                        prioridade: el('#prioridade').value,
-                        concluida: t.concluida
-                    };
-                    await updateTask(id, updatedPayload);
-                    el('#status-area-task').textContent = 'Atualizado.';
-                    el('#task-form').onsubmit = originalSubmitHandler; 
-                    el('#task-form').reset();
-                };
-            } else if (action === 'excluir-task') {
-                await deleteTask(id);
-            } else if (action === 'editar-os') {
-                const os = osList.find(x => x.id === id);
-                if (!os) return;
-                el('#ordem-servico-tab').click(); 
-                el('#numero_os').value = os.numero_os;
-                el('#cliente').value = os.cliente;
-                el('#tecnico').value = os.tecnico;
-                el('#descricao_os').value = os.descricao;
-                const originalSubmitHandler = el('#os-form').onsubmit;
-                el('#os-form').onsubmit = async (ev) => {
-                    ev.preventDefault();
-                    const updatedPayload = {
-                        numero_os: el('#numero_os').value.trim(),
-                        cliente: el('#cliente').value.trim(),
-                        tecnico: el('#tecnico').value.trim(),
-                        descricao: el('#descricao_os').value.trim(),
-                        status: os.status 
-                    };
-                    await updateOS(id, updatedPayload);
-                    el('#status-area-os').textContent = 'O.S. atualizada.';
-                    el('#os-form').onsubmit = originalSubmitHandler;
-                    el('#os-form').reset();
-                };
-            } else if (action === 'excluir-os') {
-                await deleteOS(id);
-            }
-        });
-
-        el('#buscar-tarefas').addEventListener('input', render);
-        el('#buscar-os').addEventListener('input', render);
-        
-        el('#task-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const payload = {
-                titulo: el('#titulo').value.trim(),
-                quando: el('#quando').value ? new Date(el('#quando').value) : null,
-                antecedencia: Number(el('#antecedencia').value),
-                prioridade: el('#prioridade').value,
-                notificar: el('#notificar').checked
-            };
-            el('#status-area-task').textContent = 'Salvando...';
-            await createTask(payload);
-            el('#status-area-task').textContent = 'Tarefa salva.';
-            e.target.reset();
-        });
-        
-        el('#os-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const payload = {
-                numero_os: el('#numero_os').value.trim(),
-                cliente: el('#cliente').value.trim(),
-                tecnico: el('#tecnico').value.trim(),
-                descricao: el('#descricao_os').value.trim()
-            };
-            el('#status-area-os').textContent = 'Salvando O.S...';
-            await createOS(payload);
-            el('#status-area-os').textContent = 'O.S. salva.';
-            e.target.reset();
-        });
-    }
-
-    async function createTask(payload) {
-        await addDoc(collection(db, `artifacts/${appId}/users/${userId}/tarefas`), { ...payload, data_criacao: serverTimestamp(), concluida: false });
-    }
-
-    async function updateTask(id, payload) {
-        await setDoc(doc(db, `artifacts/${appId}/users/${userId}/tarefas`, id), payload, { merge: true });
-    }
-
-    async function deleteTask(id) {
-        await deleteDoc(doc(db, `artifacts/${appId}/users/${userId}/tarefas`, id));
-    }
-
-    async function createOS(payload) {
-        await addDoc(collection(db, `artifacts/${appId}/users/${userId}/os`), { ...payload, status: 'Liberada' });
-    }
-
-    async function updateOS(id, payload) {
-        await setDoc(doc(db, `artifacts/${appId}/users/${userId}/os`, id), payload, { merge: true });
-    }
-
-    async function deleteOS(id) {
-        await deleteDoc(doc(db, `artifacts/${appId}/users/${userId}/os`, id));
-    }
-    
-    document.addEventListener('DOMContentLoaded', () => {
-      (async () => {
-          const app = initializeApp(firebaseConfig);
-          db = getFirestore(app);
-          auth = getAuth(app);
-          if (initialAuthToken) {
-              const userCredential = await signInWithCustomToken(auth, initialAuthToken);
-              userId = userCredential.user.uid;
-          } else {
-              const userCredential = await signInAnonymously(auth);
-              userId = userCredential.user.uid;
-          }
-          setupListeners();
-      })();
-    });
-  </script>
 </body>
 </html>
