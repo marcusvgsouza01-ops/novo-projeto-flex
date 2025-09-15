@@ -81,23 +81,23 @@
       const form = document.getElementById('loginForm');
       const loginMessage = document.getElementById('loginMessage');
       
-      const userRoles = {
-        'admin': 'index.html',
-        'pcp': 'pcp.html',
-        'almoxarifado': 'almoxarifado.html',
-        'producao': 'producao.html',
-        'expedicao': 'expedicao.html',
+      const userCredentials = {
+        'adm123': { password: 'adm321', redirect: 'index.html' },
+        'pcp123': { password: 'pcp321', redirect: 'pcp.html' },
+        'almoxarifado123': { password: 'almoxarifado321', redirect: 'almoxarifado.html' },
+        'producao123': { password: 'producao321', redirect: 'producao.html' },
+        'expedicao123': { password: 'expedicao321', redirect: 'expedicao.html' },
       };
 
       form.addEventListener('submit', (e) => {
         e.preventDefault();
         const username = document.getElementById('username').value.toLowerCase();
         const password = document.getElementById('password').value;
-        const redirectUrl = userRoles[username];
+        const user = userCredentials[username];
         
-        if (redirectUrl && password === '1234') { // Senha genérica para teste
+        if (user && password === user.password) {
           sessionStorage.setItem('userRole', username);
-          window.location.href = redirectUrl;
+          window.location.href = user.redirect;
         } else {
           loginMessage.textContent = 'Usuário ou senha incorretos.';
           loginMessage.style.color = '#e74c4c';
