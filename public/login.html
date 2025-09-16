@@ -99,6 +99,11 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        // Remove a sessão do navegador ao carregar a página
+        document.addEventListener('DOMContentLoaded', function() {
+            sessionStorage.removeItem('userRole');
+        });
+        
         document.getElementById('loginForm').addEventListener('submit', function(event) {
             event.preventDefault();
             

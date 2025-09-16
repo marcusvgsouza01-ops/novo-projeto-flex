@@ -112,16 +112,12 @@
         <img src="/images/image_64f7fe.png" alt="Logo da Empresa" style="max-height: 120px;">
       </div>
       <h1 class="card-title text-center p-3">Produção - Grupo ST Comunicaçao Integrada</h1>
-      <div class="text-end mb-3">
-        <button onclick="logout()" class="btn btn-outline-danger btn-sm">Sair</button>
-      </div>
-
       <ul class="nav nav-tabs" id="myTab" role="tablist">
         <li class="nav-item" role="presentation">
             <a class="nav-link active" id="objetivos-tab" data-bs-toggle="tab" href="#objetivos" role="tab" aria-controls="objetivos" aria-selected="true">Objetivos</a>
         </li>
         <li class="nav-item" role="presentation">
-            <a class="nav-link" id="liberacoes-tab" data-bs-toggle="tab" href="#liberacoes" role="tab" aria-controls="liberacoes" aria-selected="false">Liberações de O.S</a>
+            <a class="nav-link" id="tarefas-tab" data-bs-toggle="tab" href="#tarefas" role="tab" aria-controls="tarefas" aria-selected="false">Minhas Tarefas</a>
         </li>
         <li class="nav-item" role="presentation">
             <a class="nav-link" id="requisicoes-tab" data-bs-toggle="tab" href="#requisicoes" role="tab" aria-controls="requisicoes" aria-selected="false">Requisições de Materiais</a>
@@ -145,13 +141,35 @@
                 </table>
             </div>
         </div>
-        <div class="tab-pane fade" id="liberacoes" role="tabpanel" aria-labelledby="liberacoes-tab">
-            <h5 class="text-white">Conteúdo do Módulo de Liberações de O.S. (Produção)</h5>
-            <p>Gerenciamento e liberação de ordens de serviço.</p>
+        <div class="tab-pane fade" id="tarefas" role="tabpanel" aria-labelledby="tarefas-tab">
+            <h5 class="text-white">Cadastro de Tarefas de Produção</h5>
+            <form id="tarefaForm">
+                <div class="mb-3">
+                    <label for="tarefaNome" class="form-label">Nome da Tarefa</label>
+                    <input type="text" class="form-control" id="tarefaNome" required>
+                </div>
+                <div class="mb-3">
+                    <label for="previsaoTermino" class="form-label">Previsão de Término</label>
+                    <input type="datetime-local" class="form-control" id="previsaoTermino" required>
+                </div>
+                <button type="submit" class="btn btn-primary w-100">Iniciar Tarefa</button>
+            </form>
+            <div id="tarefaStatusMessage" class="mt-3 text-center"></div>
         </div>
         <div class="tab-pane fade" id="requisicoes" role="tabpanel" aria-labelledby="requisicoes-tab">
-            <h5 class="text-white">Conteúdo do Módulo de Requisições de Materiais (Produção)</h5>
-            <p>Área para solicitar materiais ao almoxarifado.</p>
+            <h5 class="text-white">Requisição de Materiais</h5>
+            <form id="requisicaoForm">
+                <div class="mb-3">
+                    <label for="itemRequisicao" class="form-label">Item</label>
+                    <input type="text" class="form-control" id="itemRequisicao" required>
+                </div>
+                <div class="mb-3">
+                    <label for="quantidadeRequisicao" class="form-label">Quantidade</label>
+                    <input type="number" class="form-control" id="quantidadeRequisicao" required>
+                </div>
+                <button type="submit" class="btn btn-primary w-100">Enviar Requisição</button>
+            </form>
+            <div id="requisicaoStatusMessage" class="mt-3 text-center"></div>
         </div>
       </div>
     </div>
@@ -161,7 +179,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAuth, signInWithCustomToken, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, collection, onSnapshot, query, where, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
     
     const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
     const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
@@ -184,6 +202,7 @@
         
         userId = auth.currentUser?.uid || crypto.randomUUID();
 
+        // Ouve as prioridades em tempo real da página ADM
         const prioridadeTableBody = document.getElementById('prioridadeTableBody');
         const prioridadesRef = collection(db, `artifacts/${appId}/public/data/prioridades`);
         
@@ -214,12 +233,58 @@
                 prioridadeTableBody.prepend(row);
             });
         });
-    });
 
-    function logout() {
-        sessionStorage.removeItem('userRole');
-        window.location.href = 'login.html';
-    }
+        // Funcionalidade de cadastro de tarefas (enviada para o monitoramento do ADM)
+        const tarefaForm = document.getElementById('tarefaForm');
+        const tarefaStatusMessage = document.getElementById('tarefaStatusMessage');
+        tarefaForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const nomeTarefa = document.getElementById('tarefaNome').value;
+            const previsaoTermino = document.getElementById('previsaoTermino').value;
+
+            try {
+                await addDoc(collection(db, `artifacts/${appId}/public/data/producao_tarefas`), {
+                    tarefa: nomeTarefa,
+                    status: 'Em Andamento',
+                    inicio: new Date(),
+                    previsao: new Date(previsaoTermino),
+                });
+                tarefaStatusMessage.textContent = 'Tarefa iniciada com sucesso!';
+                tarefaStatusMessage.style.color = 'var(--cor-sucesso)';
+                tarefaForm.reset();
+            } catch (error) {
+                console.error("Erro ao iniciar tarefa:", error);
+                tarefaStatusMessage.textContent = 'Erro ao iniciar tarefa. Tente novamente.';
+                tarefaStatusMessage.style.color = 'var(--cor-perigo)';
+            }
+        });
+
+        // Funcionalidade de requisição de materiais
+        const requisicaoForm = document.getElementById('requisicaoForm');
+        const requisicaoStatusMessage = document.getElementById('requisicaoStatusMessage');
+        requisicaoForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const item = document.getElementById('itemRequisicao').value;
+            const quantidade = document.getElementById('quantidadeRequisicao').value;
+
+            try {
+                await addDoc(collection(db, `artifacts/${appId}/public/data/almoxarifado_requisicoes`), {
+                    item,
+                    quantidade,
+                    status: 'Pendente',
+                    requisitante: 'Produção',
+                    timestamp: new Date()
+                });
+                requisicaoStatusMessage.textContent = 'Requisição enviada com sucesso!';
+                requisicaoStatusMessage.style.color = 'var(--cor-sucesso)';
+                requisicaoForm.reset();
+            } catch (error) {
+                console.error("Erro ao enviar requisição:", error);
+                requisicaoStatusMessage.textContent = 'Erro ao enviar requisição. Tente novamente.';
+                requisicaoStatusMessage.style.color = 'var(--cor-perigo)';
+            }
+        });
+    });
   </script>
 </body>
 </html>
